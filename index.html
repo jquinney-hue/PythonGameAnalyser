@@ -624,48 +624,242 @@
   }
 
   async function exportToPDF() {
-    const { PDFDocument, rgb } = PDFLib;
-
-    // Temporarily expand results area to show everything without scrollbars
-    const resultsArea = document.getElementById('results-area');
-    const originalOverflow = resultsArea.style.overflow;
-    resultsArea.style.overflow = 'visible';
-
-    // Use html2canvas to capture the full page
-    const script2 = document.createElement('script');
-    script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    document.head.appendChild(script2);
-    await new Promise(resolve => script2.onload = resolve);
-
-    const canvas = await html2canvas(document.body, {
-        backgroundColor: '#1e1e1e',
-        scale: 1.5,
-        useCORS: true,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: document.body.scrollWidth,
-        windowHeight: document.body.scrollHeight
-    });
-
-    resultsArea.style.overflow = originalOverflow;
-
-    // Embed into PDF
-    const pdfDoc = await PDFDocument.create();
-    const pngDataUrl = canvas.toDataURL('image/png');
-    const pngBase64 = pngDataUrl.split(',')[1];
-    const pngBytes = Uint8Array.from(atob(pngBase64), c => c.charCodeAt(0));
-    const pngImage = await pdfDoc.embedPng(pngBytes);
-
-    const page = pdfDoc.addPage([canvas.width, canvas.height]);
-    page.drawImage(pngImage, { x: 0, y: 0, width: canvas.width, height: canvas.height });
-
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const link = document.createElement('a');
-    link.download = `PythonDefense_ClassReport_Exam${currentExamId}.pdf`;
-    link.href = URL.createObjectURL(blob);
-    link.click();
-}
+      const { PDFDocument } = PDFLib;
+  
+      const examId = currentExamId;
+      const students = loadedFiles.filter(f => f.examData && f.examData[examId]);
+      if (!students.length) return;
+  
+      const qMap = {};
+      students.forEach(s => {
+          (s.examData[examId].questions || []).forEach(q => {
+              if (!qMap[q.q]) qMap[q.q] = q.prompt;
+          });
+      });
+      const qNums = Object.keys(qMap).map(Number).sort((a, b) => a - b);
+  
+      // --- Layout ---
+      const PADDING = 40;
+      const ROW_H = 36;
+      const COL_Q_WIDTH = 320;
+      const COL_STUDENT_WIDTH = 110;
+      const HEADER_H = 100;
+      const TABLE_TOP = HEADER_H + 20;
+      const TITLE_ROW_H = 44;
+      const SCORE_ROW_H = 36;
+      const SUMMARY_H = 100;
+      const HARDEST_H = 30 + Math.min(3, qNums.length) * 28;
+  
+      const tableWidth = COL_Q_WIDTH + students.length * COL_STUDENT_WIDTH;
+      const CANVAS_WIDTH = Math.max(tableWidth + PADDING * 2, 800);
+      const tableRows = 1 + 1 + qNums.length; // header + score + questions
+      const CANVAS_HEIGHT = TABLE_TOP + TITLE_ROW_H + SCORE_ROW_H + qNums.length * ROW_H + SUMMARY_H + HARDEST_H + PADDING * 2;
+  
+      const canvas = document.createElement('canvas');
+      canvas.width = CANVAS_WIDTH;
+      canvas.height = CANVAS_HEIGHT;
+      const ctx = canvas.getContext('2d');
+  
+      // Background
+      ctx.fillStyle = '#1e1e1e';
+      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  
+      // Border
+      ctx.strokeStyle = '#569cd6';
+      ctx.lineWidth = 6;
+      ctx.strokeRect(3, 3, CANVAS_WIDTH - 6, CANVAS_HEIGHT - 6);
+  
+      // --- Header ---
+      ctx.fillStyle = '#569cd6';
+      ctx.font = 'bold 28px Consolas, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`PYTHON DEFENSE — CLASS REPORT`, CANVAS_WIDTH / 2, 44);
+  
+      ctx.fillStyle = '#dcdcaa';
+      ctx.font = '18px Consolas, monospace';
+      ctx.fillText(`EXAM ${examId}  •  ${students.length} Students`, CANVAS_WIDTH / 2, 74);
+  
+      // --- Table column headers ---
+      let y = TABLE_TOP;
+      ctx.fillStyle = '#2d2d2d';
+      ctx.fillRect(PADDING, y, CANVAS_WIDTH - PADDING * 2, TITLE_ROW_H);
+  
+      ctx.fillStyle = '#569cd6';
+      ctx.font = 'bold 14px Consolas, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('QUESTION', PADDING + 10, y + 26);
+  
+      students.forEach((s, i) => {
+          const x = PADDING + COL_Q_WIDTH + i * COL_STUDENT_WIDTH;
+          ctx.fillStyle = '#dcdcaa';
+          ctx.font = 'bold 12px Consolas, monospace';
+          ctx.textAlign = 'center';
+          const name = s.studentName.length > 10 ? s.studentName.slice(0, 9) + '…' : s.studentName;
+          ctx.fillText(name, x + COL_STUDENT_WIDTH / 2, y + 26);
+      });
+  
+      // --- Score row ---
+      y += TITLE_ROW_H;
+      ctx.fillStyle = '#252526';
+      ctx.fillRect(PADDING, y, CANVAS_WIDTH - PADDING * 2, SCORE_ROW_H);
+      ctx.strokeStyle = '#569cd6';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(PADDING, y);
+      ctx.lineTo(CANVAS_WIDTH - PADDING, y);
+      ctx.stroke();
+  
+      ctx.fillStyle = '#dcdcaa';
+      ctx.font = 'bold 13px Consolas, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('SCORE', PADDING + 10, y + 23);
+  
+      students.forEach((s, i) => {
+          const ex = s.examData[examId];
+          const score = ex.score !== null ? ex.score : '?';
+          const total = ex.total !== null ? ex.total : '?';
+          const x = PADDING + COL_Q_WIDTH + i * COL_STUDENT_WIDTH;
+          ctx.fillStyle = '#dcdcaa';
+          ctx.font = 'bold 13px Consolas, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(`${score}/${total}`, x + COL_STUDENT_WIDTH / 2, y + 23);
+      });
+  
+      // --- Question rows ---
+      qNums.forEach((qNum, qi) => {
+          y += (qi === 0 ? SCORE_ROW_H : ROW_H);
+          const rowY = y;
+  
+          // Alternating background
+          ctx.fillStyle = qi % 2 === 0 ? '#252526' : '#1e1e1e';
+          ctx.fillRect(PADDING, rowY, CANVAS_WIDTH - PADDING * 2, ROW_H);
+  
+          // Row border
+          ctx.strokeStyle = '#333';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(PADDING, rowY + ROW_H);
+          ctx.lineTo(CANVAS_WIDTH - PADDING, rowY + ROW_H);
+          ctx.stroke();
+  
+          // Question label
+          const prompt = stripHtml(qMap[qNum]);
+          const short = prompt.length > 38 ? prompt.slice(0, 35) + '...' : prompt;
+          ctx.fillStyle = '#888';
+          ctx.font = '12px Consolas, monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText(`Q${qNum}: ${short}`, PADDING + 10, rowY + 22);
+  
+          // Student cells
+          students.forEach((s, i) => {
+              const q = (s.examData[examId].questions || []).find(q => q.q === qNum);
+              const x = PADDING + COL_Q_WIDTH + i * COL_STUDENT_WIDTH;
+              if (!q) {
+                  ctx.fillStyle = '#333';
+                  ctx.fillRect(x, rowY, COL_STUDENT_WIDTH, ROW_H);
+                  ctx.fillStyle = '#555';
+                  ctx.font = 'bold 14px Consolas, monospace';
+                  ctx.textAlign = 'center';
+                  ctx.fillText('—', x + COL_STUDENT_WIDTH / 2, rowY + 22);
+              } else if (q.correct) {
+                  ctx.fillStyle = '#1a3a1a';
+                  ctx.fillRect(x, rowY, COL_STUDENT_WIDTH, ROW_H);
+                  ctx.fillStyle = '#6a9955';
+                  ctx.font = 'bold 16px Consolas, monospace';
+                  ctx.textAlign = 'center';
+                  ctx.fillText('✓', x + COL_STUDENT_WIDTH / 2, rowY + 22);
+              } else {
+                  ctx.fillStyle = '#3a1a1a';
+                  ctx.fillRect(x, rowY, COL_STUDENT_WIDTH, ROW_H);
+                  ctx.fillStyle = '#f44747';
+                  ctx.font = 'bold 16px Consolas, monospace';
+                  ctx.textAlign = 'center';
+                  ctx.fillText('✗', x + COL_STUDENT_WIDTH / 2, rowY + 22);
+              }
+  
+              // Cell border
+              ctx.strokeStyle = '#333';
+              ctx.lineWidth = 1;
+              ctx.strokeRect(x, rowY, COL_STUDENT_WIDTH, ROW_H);
+          });
+      });
+  
+      // --- Summary cards ---
+      const summaryY = y + ROW_H + 30;
+      const avgScore = students.reduce((sum, s) => {
+          const ex = s.examData[examId];
+          return sum + (ex.score !== null ? ex.score : 0);
+      }, 0) / students.length;
+      const total = students[0]?.examData[examId]?.total || 10;
+      const passRate = Math.round((avgScore / total) * 100);
+  
+      const cards = [
+          { label: 'STUDENTS', value: String(students.length) },
+          { label: 'CLASS AVG', value: `${avgScore.toFixed(1)}/${total}` },
+          { label: 'PASS RATE', value: `${passRate}%` }
+      ];
+  
+      cards.forEach((card, i) => {
+          const cx = PADDING + i * 200;
+          ctx.fillStyle = '#2d2d2d';
+          ctx.strokeStyle = '#444';
+          ctx.lineWidth = 1;
+          ctx.fillRect(cx, summaryY, 180, 60);
+          ctx.strokeRect(cx, summaryY, 180, 60);
+          ctx.fillStyle = '#888';
+          ctx.font = '11px Consolas, monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText(card.label, cx + 12, summaryY + 18);
+          ctx.fillStyle = '#dcdcaa';
+          ctx.font = 'bold 22px Consolas, monospace';
+          ctx.fillText(card.value, cx + 12, summaryY + 48);
+      });
+  
+      // --- Hardest questions ---
+      const qStats = qNums.map(qNum => {
+          const answers = students.map(s => (s.examData[examId].questions || []).find(q => q.q === qNum));
+          const attempted = answers.filter(a => a).length;
+          const correct = answers.filter(a => a && a.correct).length;
+          return { qNum, prompt: qMap[qNum], pct: attempted ? Math.round((correct / attempted) * 100) : null };
+      });
+      const hardest = [...qStats].filter(q => q.pct !== null).sort((a, b) => a.pct - b.pct).slice(0, 3);
+  
+      if (hardest.length) {
+          const hardestY = summaryY + 80;
+          ctx.fillStyle = '#f44747';
+          ctx.font = 'bold 13px Consolas, monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText('⚠ HARDEST QUESTIONS', PADDING, hardestY);
+  
+          hardest.forEach((q, i) => {
+              const hy = hardestY + 24 + i * 26;
+              const prompt = stripHtml(q.prompt).slice(0, 70);
+              ctx.fillStyle = '#f44747';
+              ctx.font = 'bold 12px Consolas, monospace';
+              ctx.fillText(`${q.pct}%`, PADDING, hy);
+              ctx.fillStyle = '#d4d4d4';
+              ctx.font = '12px Consolas, monospace';
+              ctx.fillText(`Q${q.qNum}: ${prompt}`, PADDING + 50, hy);
+          });
+      }
+  
+      // --- Export to PDF ---
+      const pdfDoc = await PDFDocument.create();
+      const pngDataUrl = canvas.toDataURL('image/png');
+      const pngBase64 = pngDataUrl.split(',')[1];
+      const pngBytes = Uint8Array.from(atob(pngBase64), c => c.charCodeAt(0));
+      const pngImage = await pdfDoc.embedPng(pngBytes);
+  
+      const page = pdfDoc.addPage([canvas.width, canvas.height]);
+      page.drawImage(pngImage, { x: 0, y: 0, width: canvas.width, height: canvas.height });
+  
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.download = `PythonDefense_ClassReport_Exam${examId}.pdf`;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+  }
 </script>
 </body>
 </html>
