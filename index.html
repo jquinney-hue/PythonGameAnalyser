@@ -354,11 +354,12 @@
   }
 
   function extractStudentNameFromFilename(filename) {
-    // Fallback only — real name is read from PDF Author metadata field in analyseAll()
-    const match = filename.match(/PythonDefense_(.+)_Report\.pdf$/i);
+    // Strip any trailing (1), (2) etc added by browser downloads
+    const cleaned = filename.replace(/\s*\(\d+\)(?=\.pdf$)/i, '');
+    const match = cleaned.match(/PythonDefense_(.+)_Report\.pdf$/i);
     if (match) return match[1].replace(/_/g, ' ');
-    return filename.replace('.pdf', '');
-  }
+    return cleaned.replace('.pdf', '');
+}
 
   function renderFileTags() {
     const list = document.getElementById('file-list');
