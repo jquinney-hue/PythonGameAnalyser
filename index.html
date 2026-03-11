@@ -297,6 +297,11 @@
 <div id="controls" style="display:none;">
   <button class="btn" onclick="analyseAll()">ANALYSE</button>
   <button class="btn btn-red" onclick="clearAll()">CLEAR</button>
+  <div id="controls" style="display:none;">
+    <button class="btn" onclick="analyseAll()">ANALYSE</button>
+    <button class="btn" id="export-btn" onclick="exportToPDF()" style="display:none; background:#6a9955;">DOWNLOAD PDF</button>
+    <button class="btn btn-red" onclick="clearAll()">CLEAR</button>
+  </div>
 </div>
 
 <div id="file-list"></div>
@@ -517,6 +522,7 @@
       tabsEl.appendChild(tab);
     });
     renderTable(examIds[0]);
+    document.getElementById('export-btn').style.display = '';
   }
 
   function renderTable(examId) {
@@ -620,6 +626,50 @@
     d.innerHTML = html;
     return d.textContent || d.innerText || '';
   }
+
+  async function exportToPDF() {
+    const { PDFDocument, rgb } = PDFLib;
+
+    // Temporarily expand results area to show everything without scrollbars
+    const resultsArea = document.getElementById('results-area');
+    const originalOverflow = resultsArea.style.overflow;
+    resultsArea.style.overflow = 'visible';
+
+    // Use html2canvas to capture the full page
+    const script2 = document.createElement('script');
+    script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    document.head.appendChild(script2);
+    await new Promise(resolve => script2.onload = resolve);
+
+    const canvas = await html2canvas(document.body, {
+        backgroundColor: '#1e1e1e',
+        scale: 1.5,
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: document.body.scrollWidth,
+        windowHeight: document.body.scrollHeight
+    });
+
+    resultsArea.style.overflow = originalOverflow;
+
+    // Embed into PDF
+    const pdfDoc = await PDFDocument.create();
+    const pngDataUrl = canvas.toDataURL('image/png');
+    const pngBase64 = pngDataUrl.split(',')[1];
+    const pngBytes = Uint8Array.from(atob(pngBase64), c => c.charCodeAt(0));
+    const pngImage = await pdfDoc.embedPng(pngBytes);
+
+    const page = pdfDoc.addPage([canvas.width, canvas.height]);
+    page.drawImage(pngImage, { x: 0, y: 0, width: canvas.width, height: canvas.height });
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const link = document.createElement('a');
+    link.download = `PythonDefense_ClassReport_Exam${currentExamId}.pdf`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+}
 </script>
 </body>
 </html>
