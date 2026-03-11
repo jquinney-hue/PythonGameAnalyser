@@ -296,7 +296,7 @@
 
 <div id="controls" style="display:none;">
     <button class="btn" onclick="analyseAll()">ANALYSE</button>
-    <button class="btn" id="export-btn" onclick="exportToPDF()" style="display:none; background:#6a9955;">DOWNLOAD PDF</button>
+    <button class="btn" id="export-btn" onclick="exportToODS()" style="display:none; background:#6a9955;">DOWNLOAD ODS</button>
     <button class="btn btn-red" onclick="clearAll()">CLEAR</button>
 </div>
 
@@ -857,6 +857,342 @@
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       const link = document.createElement('a');
       link.download = `PythonDefense_ClassReport_Exam${examId}.pdf`;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+  }
+  async function exportToODS() {
+      const examId = currentExamId;
+      const students = loadedFiles.filter(f => f.examData && f.examData[examId]);
+      if (!students.length) return;
+  
+      const qMap = {};
+      students.forEach(s => {
+          (s.examData[examId].questions || []).forEach(q => {
+              if (!qMap[q.q]) qMap[q.q] = q.prompt;
+          });
+      });
+      const qNums = Object.keys(qMap).map(Number).sort((a, b) => a - b);
+  
+      const avgScore = students.reduce((sum, s) => {
+          const ex = s.examData[examId];
+          return sum + (ex.score !== null ? ex.score : 0);
+      }, 0) / students.length;
+      const total = students[0]?.examData[examId]?.total || 10;
+      const passRate = Math.round((avgScore / total) * 100);
+  
+      const qStats = qNums.map(qNum => {
+          const answers = students.map(s => (s.examData[examId].questions || []).find(q => q.q === qNum));
+          const attempted = answers.filter(a => a).length;
+          const correct = answers.filter(a => a && a.correct).length;
+          return { qNum, prompt: qMap[qNum], pct: attempted ? Math.round((correct / attempted) * 100) : null };
+      });
+      const hardest = [...qStats].filter(q => q.pct !== null).sort((a, b) => a.pct - b.pct).slice(0, 3);
+  
+      // --- Build ODS XML ---
+      const escape = s => String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+  
+      const cell = (value, styleName) =>
+          `<table:table-cell table:style-name="${styleName}" office:value-type="string" calcext:value-type="string"><text:p>${escape(value)}</text:p></table:table-cell>`;
+  
+      const emptyCell = (styleName = 'ce-default') =>
+          `<table:table-cell table:style-name="${styleName}"/>`;
+  
+      let rows = '';
+  
+      // Title row
+      rows += `<table:table-row table:style-name="ro-title">
+          ${cell(`PYTHON DEFENSE — CLASS REPORT — EXAM ${examId}`, 'ce-title')}
+          ${students.map(() => emptyCell('ce-title')).join('')}
+      </table:table-row>`;
+  
+      // Blank row
+      rows += `<table:table-row>${emptyCell()}</table:table-row>`;
+  
+      // Column header row
+      rows += `<table:table-row table:style-name="ro-header">
+          ${cell('QUESTION', 'ce-col-header')}
+          ${students.map(s => cell(s.studentName, 'ce-col-header')).join('')}
+      </table:table-row>`;
+  
+      // Score row
+      rows += `<table:table-row table:style-name="ro-normal">
+          ${cell('SCORE', 'ce-score-label')}
+          ${students.map(s => {
+              const ex = s.examData[examId];
+              const score = ex.score !== null ? ex.score : '?';
+              const tot = ex.total !== null ? ex.total : '?';
+              return cell(`${score}/${tot}`, 'ce-score');
+          }).join('')}
+      </table:table-row>`;
+  
+      // Question rows
+      qNums.forEach(qNum => {
+          const prompt = stripHtml(qMap[qNum]);
+          rows += `<table:table-row table:style-name="ro-normal">
+              ${cell(`Q${qNum}: ${prompt}`, 'ce-question')}
+              ${students.map(s => {
+                  const q = (s.examData[examId].questions || []).find(q => q.q === qNum);
+                  if (!q) return cell('—', 'ce-nodata');
+                  return q.correct ? cell('✓', 'ce-correct') : cell('✗', 'ce-wrong');
+              }).join('')}
+          </table:table-row>`;
+      });
+  
+      // Blank row
+      rows += `<table:table-row>${emptyCell()}</table:table-row>`;
+  
+      // Summary rows
+      rows += `<table:table-row table:style-name="ro-normal">
+          ${cell('STUDENTS', 'ce-summary-label')}
+          ${cell(String(students.length), 'ce-summary-value')}
+          ${emptyCell()}
+      </table:table-row>`;
+      rows += `<table:table-row table:style-name="ro-normal">
+          ${cell('CLASS AVG', 'ce-summary-label')}
+          ${cell(`${avgScore.toFixed(1)}/${total}`, 'ce-summary-value')}
+          ${emptyCell()}
+      </table:table-row>`;
+      rows += `<table:table-row table:style-name="ro-normal">
+          ${cell('PASS RATE', 'ce-summary-label')}
+          ${cell(`${passRate}%`, 'ce-summary-value')}
+          ${emptyCell()}
+      </table:table-row>`;
+  
+      // Blank row
+      rows += `<table:table-row>${emptyCell()}</table:table-row>`;
+  
+      // Hardest questions
+      if (hardest.length) {
+          rows += `<table:table-row table:style-name="ro-normal">
+              ${cell('⚠ HARDEST QUESTIONS', 'ce-hardest-header')}
+              ${emptyCell()}${emptyCell()}
+          </table:table-row>`;
+          hardest.forEach(q => {
+              rows += `<table:table-row table:style-name="ro-normal">
+                  ${cell(`Q${q.qNum}: ${stripHtml(q.prompt)}`, 'ce-hardest-q')}
+                  ${cell(`${q.pct}% correct`, 'ce-hardest-pct')}
+                  ${emptyCell()}
+              </table:table-row>`;
+          });
+      }
+  
+      const contentXml = `<?xml version="1.0" encoding="UTF-8"?>
+  <office:document-content
+      xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+      xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
+      xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+      xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+      xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+      xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"
+      xmlns:office2="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+      office:version="1.2">
+  <office:automatic-styles>
+  
+      <!-- Row styles -->
+      <style:style style:name="ro-title" style:family="table-row"><style:table-row-properties style:row-height="1.2cm"/></style:style>
+      <style:style style:name="ro-header" style:family="table-row"><style:table-row-properties style:row-height="1cm"/></style:style>
+      <style:style style:name="ro-normal" style:family="table-row"><style:table-row-properties style:row-height="0.8cm"/></style:style>
+  
+      <!-- Cell styles -->
+      <style:style style:name="ce-default" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444"/>
+          <style:text-properties fo:color="#d4d4d4" fo:font-size="11pt" style:font-name="Consolas"/>
+      </style:style>
+  
+      <style:style style:name="ce-title" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #569cd6" style:vertical-align="middle"/>
+          <style:text-properties fo:color="#569cd6" fo:font-size="16pt" fo:font-weight="bold" style:font-name="Consolas"/>
+      </style:style>
+  
+      <style:style style:name="ce-col-header" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
+          <style:text-properties fo:color="#569cd6" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
+      </style:style>
+  
+      <style:style style:name="ce-score-label" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #569cd6" style:vertical-align="middle"/>
+          <style:text-properties fo:color="#dcdcaa" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
+      </style:style>
+  
+      <style:style style:name="ce-score" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #569cd6" style:vertical-align="middle" fo:text-align="center"/>
+          <style:text-properties fo:color="#dcdcaa" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
+      </style:style>
+  
+      <style:style style:name="ce-question" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#252526" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
+          <style:text-properties fo:color="#888888" fo:font-size="10pt" style:font-name="Consolas"/>
+      </style:style>
+  
+      <style:style style:name="ce-correct" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#1a3a1a" fo:border="0.05cm solid #4a9955" style:vertical-align="middle" fo:text-align="center"/>
+          <style:text-properties fo:color="#6a9955" fo:font-size="13pt" fo:font-weight="bold" style:font-name="Consolas"/>
+      </style:style>
+  
+      <style:style style:name="ce-wrong" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#3a1a1a" fo:border="0.05cm solid #f44747" style:vertical-align="middle" fo:text-align="center"/>
+          <style:text-properties fo:color="#f44747" fo:font-size="13pt" fo:font-weight="bold" style:font-name="Consolas"/>
+      </style:style>
+  
+      <style:style style:name="ce-nodata" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #333333" style:vertical-align="middle" fo:text-align="center"/>
+          <style:text-properties fo:color="#444444" fo:font-size="11pt" style:font-name="Consolas"/>
+      </style:style>
+  
+      <style:style style:name="ce-summary-label" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
+          <style:text-properties fo:color="#888888" fo:font-size="10pt" style:font-name="Consolas"/>
+      </style:style>
+  
+      <style:style style:name="ce-summary-value" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
+          <style:text-properties fo:color="#dcdcaa" fo:font-size="14pt" fo:font-weight="bold" style:font-name="Consolas"/>
+      </style:style>
+  
+      <style:style style:name="ce-hardest-header" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #f44747" style:vertical-align="middle"/>
+          <style:text-properties fo:color="#f44747" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
+      </style:style>
+  
+      <style:style style:name="ce-hardest-q" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
+          <style:text-properties fo:color="#d4d4d4" fo:font-size="10pt" style:font-name="Consolas"/>
+      </style:style>
+  
+      <style:style style:name="ce-hardest-pct" style:family="table-cell">
+          <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
+          <style:text-properties fo:color="#f44747" fo:font-size="10pt" fo:font-weight="bold" style:font-name="Consolas"/>
+      </style:style>
+  
+  </office:automatic-styles>
+  <office:body>
+  <office:spreadsheet>
+  <table:table table:name="Exam ${examId}">
+  ${rows}
+  </table:table>
+  </office:spreadsheet>
+  </office:body>
+  </office:document-content>`;
+  
+      const mimetypeContent = 'application/vnd.oasis.opendocument.spreadsheet';
+  
+      const manifestXml = `<?xml version="1.0" encoding="UTF-8"?>
+  <manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.2">
+      <manifest:file-entry manifest:full-path="/" manifest:media-type="application/vnd.oasis.opendocument.spreadsheet"/>
+      <manifest:file-entry manifest:full-path="content.xml" manifest:media-type="text/xml"/>
+  </manifest:manifest>`;
+  
+      // --- Zip it up ---
+      // We build the ODS zip manually using a minimal zip implementation
+      function strToBytes(str) {
+          return new TextEncoder().encode(str);
+      }
+  
+      function makeZip(files) {
+          // files: [{name, data: Uint8Array}]
+          const crc32Table = (() => {
+              const t = new Uint32Array(256);
+              for (let i = 0; i < 256; i++) {
+                  let c = i;
+                  for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+                  t[i] = c;
+              }
+              return t;
+          })();
+  
+          function crc32(data) {
+              let crc = 0xFFFFFFFF;
+              for (let i = 0; i < data.length; i++) crc = crc32Table[(crc ^ data[i]) & 0xFF] ^ (crc >>> 8);
+              return (crc ^ 0xFFFFFFFF) >>> 0;
+          }
+  
+          function u16(n) { return [n & 0xFF, (n >> 8) & 0xFF]; }
+          function u32(n) { return [n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, (n >> 24) & 0xFF]; }
+  
+          const localHeaders = [];
+          const centralHeaders = [];
+          let offset = 0;
+  
+          for (const file of files) {
+              const nameBytes = new TextEncoder().encode(file.name);
+              const crc = crc32(file.data);
+              const size = file.data.length;
+  
+              const local = [
+                  0x50, 0x4B, 0x03, 0x04, // signature
+                  20, 0,                   // version needed
+                  0, 0,                    // flags
+                  0, 0,                    // compression (stored)
+                  0, 0, 0, 0,              // mod time/date
+                  ...u32(crc),
+                  ...u32(size),
+                  ...u32(size),
+                  ...u16(nameBytes.length),
+                  0, 0,
+                  ...nameBytes
+              ];
+  
+              localHeaders.push({ local, data: file.data, offset, nameBytes, crc, size });
+  
+              const central = [
+                  0x50, 0x4B, 0x01, 0x02,
+                  20, 0, 20, 0,
+                  0, 0, 0, 0,
+                  0, 0, 0, 0,
+                  ...u32(crc),
+                  ...u32(size),
+                  ...u32(size),
+                  ...u16(nameBytes.length),
+                  0, 0, 0, 0, 0, 0, 0, 0,
+                  0, 0, 0, 0,
+                  ...u32(offset),
+                  ...nameBytes
+              ];
+              centralHeaders.push(central);
+  
+              offset += local.length + size;
+          }
+  
+          const centralStart = offset;
+          const centralFlat = centralHeaders.flat();
+          const eocd = [
+              0x50, 0x4B, 0x05, 0x06,
+              0, 0, 0, 0,
+              ...u16(files.length),
+              ...u16(files.length),
+              ...u32(centralFlat.length),
+              ...u32(centralStart),
+              0, 0
+          ];
+  
+          const parts = [];
+          for (const h of localHeaders) {
+              parts.push(new Uint8Array(h.local));
+              parts.push(h.data);
+          }
+          parts.push(new Uint8Array(centralFlat));
+          parts.push(new Uint8Array(eocd));
+  
+          const total = parts.reduce((s, p) => s + p.length, 0);
+          const out = new Uint8Array(total);
+          let pos = 0;
+          for (const p of parts) { out.set(p, pos); pos += p.length; }
+          return out;
+      }
+  
+      const zipBytes = makeZip([
+          { name: 'mimetype', data: strToBytes(mimetypeContent) },
+          { name: 'META-INF/manifest.xml', data: strToBytes(manifestXml) },
+          { name: 'content.xml', data: strToBytes(contentXml) }
+      ]);
+  
+      const blob = new Blob([zipBytes], { type: 'application/vnd.oasis.opendocument.spreadsheet' });
+      const link = document.createElement('a');
+      link.download = `PythonDefense_ClassReport_Exam${examId}.ods`;
       link.href = URL.createObjectURL(blob);
       link.click();
   }
