@@ -980,109 +980,111 @@
           });
       }
   
-      const contentXml = `<?xml version="1.0" encoding="UTF-8"?>
-  <office:document-content
-      xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
-      xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
-      xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
-      xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
-      xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
-      xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"
-      xmlns:office2="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
-      office:version="1.2">
-      <table:table table:name="Exam ${examId}" table:style-name="ta-main">
-  <office:automatic-styles>
-      <style:style style:name="ta-main" style:family="table">
-          <style:table-properties fo:background-color="#1e1e1e"/>
-      </style:style>
-      <style:style style:name="co-default" style:family="table-column">
-          <style:table-column-properties fo:background-color="#1e1e1e" style:column-width="3cm"/>
-      </style:style>
-      <!-- Row styles -->
-      <style:style style:name="ro-title" style:family="table-row"><style:table-row-properties style:row-height="1.2cm"/></style:style>
-      <style:style style:name="ro-header" style:family="table-row"><style:table-row-properties style:row-height="1cm"/></style:style>
-      <style:style style:name="ro-normal" style:family="table-row"><style:table-row-properties style:row-height="0.8cm"/></style:style>
-  
-      <!-- Cell styles -->
-      <style:style style:name="ce-default" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444"/>
-          <style:text-properties fo:color="#d4d4d4" fo:font-size="11pt" style:font-name="Consolas"/>
-      </style:style>
-  
-      <style:style style:name="ce-title" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #569cd6" style:vertical-align="middle"/>
-          <style:text-properties fo:color="#569cd6" fo:font-size="16pt" fo:font-weight="bold" style:font-name="Consolas"/>
-      </style:style>
-  
-      <style:style style:name="ce-col-header" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
-          <style:text-properties fo:color="#569cd6" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
-      </style:style>
-  
-      <style:style style:name="ce-score-label" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #569cd6" style:vertical-align="middle"/>
-          <style:text-properties fo:color="#dcdcaa" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
-      </style:style>
-  
-      <style:style style:name="ce-score" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #569cd6" style:vertical-align="middle" fo:text-align="center"/>
-          <style:text-properties fo:color="#dcdcaa" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
-      </style:style>
-  
-      <style:style style:name="ce-question" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#252526" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
-          <style:text-properties fo:color="#888888" fo:font-size="10pt" style:font-name="Consolas"/>
-      </style:style>
-  
-      <style:style style:name="ce-correct" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#1a3a1a" fo:border="0.05cm solid #4a9955" style:vertical-align="middle" fo:text-align="center"/>
-          <style:text-properties fo:color="#6a9955" fo:font-size="13pt" fo:font-weight="bold" style:font-name="Consolas"/>
-      </style:style>
-  
-      <style:style style:name="ce-wrong" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#3a1a1a" fo:border="0.05cm solid #f44747" style:vertical-align="middle" fo:text-align="center"/>
-          <style:text-properties fo:color="#f44747" fo:font-size="13pt" fo:font-weight="bold" style:font-name="Consolas"/>
-      </style:style>
-  
-      <style:style style:name="ce-nodata" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #333333" style:vertical-align="middle" fo:text-align="center"/>
-          <style:text-properties fo:color="#444444" fo:font-size="11pt" style:font-name="Consolas"/>
-      </style:style>
-  
-      <style:style style:name="ce-summary-label" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
-          <style:text-properties fo:color="#888888" fo:font-size="10pt" style:font-name="Consolas"/>
-      </style:style>
-  
-      <style:style style:name="ce-summary-value" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
-          <style:text-properties fo:color="#dcdcaa" fo:font-size="14pt" fo:font-weight="bold" style:font-name="Consolas"/>
-      </style:style>
-  
-      <style:style style:name="ce-hardest-header" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #f44747" style:vertical-align="middle"/>
-          <style:text-properties fo:color="#f44747" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
-      </style:style>
-  
-      <style:style style:name="ce-hardest-q" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
-          <style:text-properties fo:color="#d4d4d4" fo:font-size="10pt" style:font-name="Consolas"/>
-      </style:style>
-  
-      <style:style style:name="ce-hardest-pct" style:family="table-cell">
-          <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
-          <style:text-properties fo:color="#f44747" fo:font-size="10pt" fo:font-weight="bold" style:font-name="Consolas"/>
-      </style:style>
-  
-  </office:automatic-styles>
-  <office:body>
-  <office:spreadsheet>
-  <table:table table:name="Exam ${examId}">
-  ${rows}
-  </table:table>
-  </office:spreadsheet>
-  </office:body>
-  </office:document-content>`;
+      const colDefs = `<table:table-column table:style-name="co-default" table:number-columns-repeated="50"/>`;
+
+const contentXml = `<?xml version="1.0" encoding="UTF-8"?>
+    <office:document-content
+        xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+        xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
+        xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+        xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+        xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+        xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"
+        office:version="1.2">
+    <office:automatic-styles>
+    
+        <style:style style:name="ta-main" style:family="table">
+            <style:table-properties fo:background-color="#1e1e1e"/>
+        </style:style>
+    
+        <style:style style:name="co-default" style:family="table-column">
+            <style:table-column-properties fo:background-color="#1e1e1e" style:column-width="3cm"/>
+        </style:style>
+    
+        <style:style style:name="ro-title" style:family="table-row"><style:table-row-properties style:row-height="1.2cm"/></style:style>
+        <style:style style:name="ro-header" style:family="table-row"><style:table-row-properties style:row-height="1cm"/></style:style>
+        <style:style style:name="ro-normal" style:family="table-row"><style:table-row-properties style:row-height="0.8cm"/></style:style>
+    
+        <style:style style:name="ce-default" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444"/>
+            <style:text-properties fo:color="#d4d4d4" fo:font-size="11pt" style:font-name="Consolas"/>
+        </style:style>
+    
+        <style:style style:name="ce-title" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #569cd6" style:vertical-align="middle"/>
+            <style:text-properties fo:color="#569cd6" fo:font-size="16pt" fo:font-weight="bold" style:font-name="Consolas"/>
+        </style:style>
+    
+        <style:style style:name="ce-col-header" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
+            <style:text-properties fo:color="#569cd6" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
+        </style:style>
+    
+        <style:style style:name="ce-score-label" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #569cd6" style:vertical-align="middle"/>
+            <style:text-properties fo:color="#dcdcaa" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
+        </style:style>
+    
+        <style:style style:name="ce-score" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #569cd6" style:vertical-align="middle" fo:text-align="center"/>
+            <style:text-properties fo:color="#dcdcaa" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
+        </style:style>
+    
+        <style:style style:name="ce-question" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#252526" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
+            <style:text-properties fo:color="#888888" fo:font-size="10pt" style:font-name="Consolas"/>
+        </style:style>
+    
+        <style:style style:name="ce-correct" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#1a3a1a" fo:border="0.05cm solid #4a9955" style:vertical-align="middle" fo:text-align="center"/>
+            <style:text-properties fo:color="#6a9955" fo:font-size="13pt" fo:font-weight="bold" style:font-name="Consolas"/>
+        </style:style>
+    
+        <style:style style:name="ce-wrong" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#3a1a1a" fo:border="0.05cm solid #f44747" style:vertical-align="middle" fo:text-align="center"/>
+            <style:text-properties fo:color="#f44747" fo:font-size="13pt" fo:font-weight="bold" style:font-name="Consolas"/>
+        </style:style>
+    
+        <style:style style:name="ce-nodata" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #333333" style:vertical-align="middle" fo:text-align="center"/>
+            <style:text-properties fo:color="#444444" fo:font-size="11pt" style:font-name="Consolas"/>
+        </style:style>
+    
+        <style:style style:name="ce-summary-label" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
+            <style:text-properties fo:color="#888888" fo:font-size="10pt" style:font-name="Consolas"/>
+        </style:style>
+    
+        <style:style style:name="ce-summary-value" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
+            <style:text-properties fo:color="#dcdcaa" fo:font-size="14pt" fo:font-weight="bold" style:font-name="Consolas"/>
+        </style:style>
+    
+        <style:style style:name="ce-hardest-header" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #f44747" style:vertical-align="middle"/>
+            <style:text-properties fo:color="#f44747" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
+        </style:style>
+    
+        <style:style style:name="ce-hardest-q" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
+            <style:text-properties fo:color="#d4d4d4" fo:font-size="10pt" style:font-name="Consolas"/>
+        </style:style>
+    
+        <style:style style:name="ce-hardest-pct" style:family="table-cell">
+            <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
+            <style:text-properties fo:color="#f44747" fo:font-size="10pt" fo:font-weight="bold" style:font-name="Consolas"/>
+        </style:style>
+    
+    </office:automatic-styles>
+    <office:body>
+    <office:spreadsheet>
+    <table:table table:name="Exam ${examId}" table:style-name="ta-main">
+    ${colDefs}
+    ${rows}
+    </table:table>
+    </office:spreadsheet>
+    </office:body>
+    </office:document-content>`;
   
       const mimetypeContent = 'application/vnd.oasis.opendocument.spreadsheet';
   
