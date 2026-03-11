@@ -990,8 +990,14 @@
       xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"
       xmlns:office2="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
       office:version="1.2">
+      <table:table table:name="Exam ${examId}" table:style-name="ta-main">
   <office:automatic-styles>
-  
+      <style:style style:name="ta-main" style:family="table">
+          <style:table-properties fo:background-color="#1e1e1e"/>
+      </style:style>
+      <style:style style:name="co-default" style:family="table-column">
+          <style:table-column-properties fo:background-color="#1e1e1e" style:column-width="3cm"/>
+      </style:style>
       <!-- Row styles -->
       <style:style style:name="ro-title" style:family="table-row"><style:table-row-properties style:row-height="1.2cm"/></style:style>
       <style:style style:name="ro-header" style:family="table-row"><style:table-row-properties style:row-height="1cm"/></style:style>
