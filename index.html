@@ -199,14 +199,14 @@
   td.question-label {
     color: var(--text-dim);
     background: var(--bg3);
-    white-space: nowrap;
-    max-width: 260px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    min-width: 260px;
+    max-width: 400px;
+    word-wrap: break-word;
     position: sticky;
     left: 0;
     z-index: 1;
-  }
+}
 
   td.correct { background: var(--correct); border-color: var(--correct-border); color: var(--correct-text); text-align: center; font-weight: bold; }
   td.wrong { background: var(--wrong); border-color: var(--wrong-border); color: var(--wrong-text); text-align: center; font-weight: bold; }
@@ -258,8 +258,8 @@
 <div id="status"></div>
 
 <!-- Stage exams -->
+<!-- All exams in one place -->
 <div id="exam-section" style="display:none;">
-  <div class="section-label">STAGE EXAMS</div>
   <div id="exam-tabs"></div>
   <div id="results-area" class="results-area hidden">
     <div id="empty-state"><div class="big">📊</div><div>Load PDFs and click ANALYSE to see results</div></div>
@@ -332,20 +332,20 @@
     loadedFiles.splice(i, 1);
     renderFileTags();
     if (!loadedFiles.length) {
-      document.getElementById('controls').style.display = 'none';
-      document.getElementById('exam-section').style.display = 'none';
-      document.getElementById('gcse-section').style.display = 'none';
+        document.getElementById('controls').style.display = 'none';
+        document.getElementById('exam-section').style.display = 'none';
     }
-  }
+}
 
   function clearAll() {
     loadedFiles = [];
     renderFileTags();
     document.getElementById('controls').style.display = 'none';
     document.getElementById('exam-section').style.display = 'none';
-    document.getElementById('gcse-section').style.display = 'none';
+    document.getElementById('results-area').classList.add('hidden');
+    document.getElementById('exam-tabs').innerHTML = '';
     setStatus('');
-  }
+}
 
   function setStatus(msg) { document.getElementById('status').textContent = msg; }
 
@@ -434,72 +434,69 @@
     let loaded = 0;
 
     for (const entry of loadedFiles) {
-      try {
-        const result = await parsePDF(entry.file);
-        entry.examData = result.examData;
-        if (result.studentName) entry.studentName = result.studentName;
-        entry.status = entry.examData ? 'loaded' : 'error';
-        loaded++;
-      } catch (e) {
-        entry.status = 'error';
-        console.error(e);
-      }
+        try {
+            const result = await parsePDF(entry.file);
+            entry.examData = result.examData;
+            if (result.studentName) entry.studentName = result.studentName;
+            entry.status = entry.examData ? 'loaded' : 'error';
+            loaded++;
+        } catch (e) {
+            entry.status = 'error';
+            console.error(e);
+        }
     }
 
     renderFileTags();
     setStatus(`Loaded ${loaded} of ${loadedFiles.length} files.`);
 
-    // Separate regular and GCSE exam IDs
+    const allIds = [];
+
+    // Regular exams first
     const examIds = new Set();
     const gcseIds = new Set();
-
     loadedFiles.forEach(f => {
-      if (!f.examData) return;
-      Object.keys(f.examData).forEach(id => {
-        if (f.examData[id].isGcse) gcseIds.add(id);
-        else examIds.add(id);
-      });
+        if (!f.examData) return;
+        Object.keys(f.examData).forEach(id => {
+            if (f.examData[id].isGcse) gcseIds.add(id);
+            else examIds.add(id);
+        });
     });
 
-    if (!examIds.size && !gcseIds.size) {
-      setStatus('No exam data found in PDFs. Make sure reports were generated after taking exams.');
-      return;
+    [...examIds].sort((a, b) => Number(a) - Number(b)).forEach(id => allIds.push({ id, isGcse: false }));
+    [...gcseIds].sort((a, b) => parseInt(a.replace('gcse_', '')) - parseInt(b.replace('gcse_', ''))).forEach(id => allIds.push({ id, isGcse: true }));
+
+    if (!allIds.length) {
+        setStatus('No exam data found in PDFs. Make sure reports were generated after taking exams.');
+        return;
     }
 
-    if (examIds.size) {
-      document.getElementById('exam-section').style.display = 'block';
-      renderTabs([...examIds].sort((a, b) => Number(a) - Number(b)), false);
-    }
-
-    if (gcseIds.size) {
-      document.getElementById('gcse-section').style.display = 'block';
-      renderTabs([...gcseIds].sort((a, b) => {
-        const na = parseInt(a.replace('gcse_', ''));
-        const nb = parseInt(b.replace('gcse_', ''));
-        return na - nb;
-      }), true);
-    }
-
+    document.getElementById('exam-section').style.display = 'block';
+    renderTabs(allIds);
     document.getElementById('export-btn').style.display = 'inline-block';
-  }
+}
 
-  function renderTabs(ids, isGcse) {
-    const tabsEl = document.getElementById(isGcse ? 'gcse-tabs' : 'exam-tabs');
+  function renderTabs(allIds) {
+    const tabsEl = document.getElementById('exam-tabs');
     tabsEl.innerHTML = '';
-    ids.forEach((id, i) => {
-      const tab = document.createElement('button');
-      tab.className = isGcse ? `gcse-tab${i === 0 ? ' active' : ''}` : `exam-tab${i === 0 ? ' active' : ''}`;
-      tab.textContent = isGcse ? `GCSE ${id.replace('gcse_', '')}` : `EXAM ${id}`;
-      tab.onclick = () => {
-        const allTabs = tabsEl.querySelectorAll(isGcse ? '.gcse-tab' : '.exam-tab');
-        allTabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        renderTable(id, isGcse);
-      };
-      tabsEl.appendChild(tab);
+    allIds.forEach(({ id, isGcse }, i) => {
+        const tab = document.createElement('button');
+        tab.className = `exam-tab${i === 0 ? ' active' : ''}`;
+        tab.textContent = isGcse ? `GCSE ${id.replace('gcse_', '')}` : `EXAM ${id}`;
+        if (isGcse) tab.style.cssText = 'color: var(--accent-orange); border-color: var(--accent-orange);';
+        tab.onclick = () => {
+            document.querySelectorAll('.exam-tab').forEach(t => {
+                t.classList.remove('active');
+                t.style.color = '';
+                t.style.borderColor = '';
+            });
+            tab.classList.add('active');
+            if (isGcse) tab.style.cssText = 'color: var(--accent-orange); border-color: var(--accent-orange);';
+            renderTable(id, isGcse);
+        };
+        tabsEl.appendChild(tab);
     });
-    renderTable(ids[0], isGcse);
-  }
+    renderTable(allIds[0].id, allIds[0].isGcse);
+}
 
   function renderTable(examId, isGcse) {
     const areaId = isGcse ? 'gcse-results-area' : 'results-area';
