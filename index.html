@@ -15,6 +15,7 @@
     --accent-blue: #569cd6;
     --accent-yellow: #dcdcaa;
     --accent-red: #f44747;
+    --accent-orange: #ce9178;
     --text: #d4d4d4;
     --text-dim: #888;
     --correct: #1a3a1a;
@@ -44,16 +45,8 @@
     padding-bottom: 20px;
   }
 
-  header h1 {
-    font-size: 1.6rem;
-    color: var(--accent-blue);
-    letter-spacing: 2px;
-  }
-
-  header span {
-    color: var(--text-dim);
-    font-size: 0.85rem;
-  }
+  header h1 { font-size: 1.6rem; color: var(--accent-blue); letter-spacing: 2px; }
+  header span { color: var(--text-dim); font-size: 0.85rem; }
 
   #drop-zone {
     border: 2px dashed var(--border);
@@ -65,15 +58,9 @@
     margin-bottom: 24px;
     background: var(--bg2);
   }
-
-  #drop-zone.dragover {
-    border-color: var(--accent-blue);
-    background: #1a2a3a;
-  }
-
+  #drop-zone.dragover { border-color: var(--accent-blue); background: #1a2a3a; }
   #drop-zone p { color: var(--text-dim); font-size: 0.9rem; margin-top: 8px; }
   #drop-zone .icon { font-size: 2.5rem; margin-bottom: 8px; }
-
   #file-input { display: none; }
 
   .btn {
@@ -122,19 +109,27 @@
   .file-tag.error { border-color: var(--accent-red); color: var(--accent-red); }
   .file-tag button { background: none; border: none; color: inherit; cursor: pointer; font-size: 0.9rem; padding: 0; }
 
-  #status {
+  #status { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 16px; min-height: 20px; }
+
+  .section-label {
+    font-size: 0.75rem;
     color: var(--text-dim);
-    font-size: 0.85rem;
-    margin-bottom: 16px;
-    min-height: 20px;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+    margin-top: 16px;
   }
 
-  #exam-tabs {
+  .section-label.gcse { color: var(--accent-orange); }
+
+  #exam-tabs, #gcse-tabs {
     display: flex;
     gap: 4px;
     margin-bottom: 0;
-    border-bottom: 2px solid var(--border);
+    flex-wrap: wrap;
   }
+
+  #exam-tabs { border-bottom: 2px solid var(--border); }
+  #gcse-tabs { border-bottom: 2px solid var(--accent-orange); margin-top: 24px; }
 
   .exam-tab {
     background: var(--bg2);
@@ -154,22 +149,36 @@
     border-color: var(--accent-blue);
     border-bottom-color: var(--bg3);
   }
+  .gcse-tab {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    color: var(--text-dim);
+    padding: 8px 20px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: 2px 2px 0 0;
+    transition: background 0.15s, color 0.15s;
+  }
+  .gcse-tab.active {
+    background: var(--bg3);
+    color: var(--accent-orange);
+    border-color: var(--accent-orange);
+    border-bottom-color: var(--bg3);
+  }
 
-  #results-area {
+  .results-area {
     background: var(--bg2);
     border: 1px solid var(--border);
     border-top: none;
     padding: 20px;
     overflow-x: auto;
   }
+  .results-area.gcse-area { border-color: var(--accent-orange); }
+  .results-area.hidden { display: none; }
 
-  #results-area.hidden { display: none; }
-
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    font-size: 0.8rem;
-  }
+  table { border-collapse: collapse; width: 100%; font-size: 0.8rem; }
 
   th {
     background: var(--bg3);
@@ -182,18 +191,10 @@
     top: 0;
     z-index: 2;
   }
+  th.gcse-header { color: var(--accent-orange); }
+  th.student-name { color: var(--accent-yellow); min-width: 100px; max-width: 140px; }
 
-  th.student-name {
-    color: var(--accent-yellow);
-    min-width: 100px;
-    max-width: 140px;
-  }
-
-  td {
-    border: 1px solid var(--border);
-    padding: 8px 12px;
-    vertical-align: middle;
-  }
+  td { border: 1px solid var(--border); padding: 8px 12px; vertical-align: middle; }
 
   td.question-label {
     color: var(--text-dim);
@@ -207,74 +208,27 @@
     z-index: 1;
   }
 
-  td.correct {
-    background: var(--correct);
-    border-color: var(--correct-border);
-    color: var(--correct-text);
-    text-align: center;
-    font-weight: bold;
-  }
+  td.correct { background: var(--correct); border-color: var(--correct-border); color: var(--correct-text); text-align: center; font-weight: bold; }
+  td.wrong { background: var(--wrong); border-color: var(--wrong-border); color: var(--wrong-text); text-align: center; font-weight: bold; }
+  td.no-data { background: var(--bg); color: var(--border); text-align: center; }
 
-  td.wrong {
-    background: var(--wrong);
-    border-color: var(--wrong-border);
-    color: var(--wrong-text);
-    text-align: center;
-    font-weight: bold;
-  }
+  tr.score-row td { background: var(--bg3); color: var(--accent-yellow); font-weight: bold; border-top: 2px solid var(--accent-blue); }
+  tr.score-row td.question-label { color: var(--accent-yellow); }
+  tr.score-row.gcse td { border-top-color: var(--accent-orange); }
 
-  td.no-data {
-    background: var(--bg);
-    color: var(--border);
-    text-align: center;
-  }
+  #summary, #gcse-summary { margin-top: 20px; display: flex; gap: 16px; flex-wrap: wrap; }
 
-  tr.score-row td {
-    background: var(--bg3);
-    color: var(--accent-yellow);
-    font-weight: bold;
-    border-top: 2px solid var(--accent-blue);
-  }
-
-  tr.score-row td.question-label {
-    color: var(--accent-yellow);
-  }
-
-  #summary {
-    margin-top: 20px;
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-
-  .summary-card {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 14px 20px;
-    min-width: 160px;
-  }
-
+  .summary-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 2px; padding: 14px 20px; min-width: 160px; }
   .summary-card .label { color: var(--text-dim); font-size: 0.75rem; margin-bottom: 4px; }
   .summary-card .value { font-size: 1.3rem; color: var(--accent-yellow); }
 
-  .hardest-q {
-    margin-top: 20px;
-    background: var(--bg3);
-    border: 1px solid var(--wrong-border);
-    border-radius: 2px;
-    padding: 14px 20px;
-  }
+  .hardest-q { margin-top: 20px; background: var(--bg3); border: 1px solid var(--wrong-border); border-radius: 2px; padding: 14px 20px; }
   .hardest-q h3 { color: var(--accent-red); font-size: 0.85rem; margin-bottom: 10px; letter-spacing: 1px; }
   .hardest-q-item { color: var(--text-dim); font-size: 0.8rem; margin-bottom: 6px; display: flex; gap: 10px; }
   .hardest-q-item .pct { color: var(--accent-red); min-width: 40px; }
   .hardest-q-item .qtext { color: var(--text); }
 
-  #empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-dim);
-  }
+  #empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
   #empty-state .big { font-size: 3rem; margin-bottom: 12px; }
 </style>
 </head>
@@ -295,20 +249,28 @@
 <input type="file" id="file-input" accept=".pdf" multiple>
 
 <div id="controls" style="display:none;">
-    <button class="btn" onclick="analyseAll()">ANALYSE</button>
-    <button class="btn" id="export-btn" onclick="exportToODS()" style="display:none; background:#6a9955;">DOWNLOAD SPREADSHEET</button>
-    <button class="btn btn-red" onclick="clearAll()">CLEAR</button>
+  <button class="btn" onclick="analyseAll()">ANALYSE</button>
+  <button class="btn" id="export-btn" onclick="exportToODS()" style="display:none; background:#6a9955;">DOWNLOAD SPREADSHEET</button>
+  <button class="btn btn-red" onclick="clearAll()">CLEAR</button>
 </div>
 
 <div id="file-list"></div>
 <div id="status"></div>
 
-<div id="exam-tabs"></div>
-<div id="results-area" class="hidden">
-  <div id="empty-state">
-    <div class="big">📊</div>
-    <div>Load PDFs and click ANALYSE to see results</div>
+<!-- Stage exams -->
+<div id="exam-section" style="display:none;">
+  <div class="section-label">STAGE EXAMS</div>
+  <div id="exam-tabs"></div>
+  <div id="results-area" class="results-area hidden">
+    <div id="empty-state"><div class="big">📊</div><div>Load PDFs and click ANALYSE to see results</div></div>
   </div>
+</div>
+
+<!-- GCSE exams -->
+<div id="gcse-section" style="display:none;">
+  <div class="section-label gcse">GCSE EXAMS</div>
+  <div id="gcse-tabs"></div>
+  <div id="gcse-results-area" class="results-area gcse-area hidden"></div>
 </div>
 
 <script>
@@ -317,8 +279,8 @@
   let pdfJsLoaded = false;
   let loadedFiles = [];
   let currentExamId = null;
+  let currentGcseId = null;
 
-  // Load PDF.js
   const script = document.createElement('script');
   script.src = PDFJS_URL;
   script.onload = () => {
@@ -327,15 +289,10 @@
   };
   document.head.appendChild(script);
 
-  // --- Drag and drop ---
   const dropZone = document.getElementById('drop-zone');
   dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
-    handleFiles([...e.dataTransfer.files]);
-  });
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFiles([...e.dataTransfer.files]); });
   document.getElementById('file-input').addEventListener('change', e => handleFiles([...e.target.files]));
 
   function handleFiles(files) {
@@ -347,7 +304,6 @@
 
   function addFile(file) {
     if (loadedFiles.find(f => f.name === file.name)) return;
-    // Use filename as temporary placeholder — overridden by PDF Author metadata on analyse
     const studentName = extractStudentNameFromFilename(file.name);
     const entry = { name: file.name, studentName, file, examData: null, status: 'pending' };
     loadedFiles.push(entry);
@@ -355,12 +311,11 @@
   }
 
   function extractStudentNameFromFilename(filename) {
-    // Strip any trailing (1), (2) etc added by browser downloads
     const cleaned = filename.replace(/\s*\(\d+\)(?=\.pdf$)/i, '');
     const match = cleaned.match(/PythonDefense_(.+)_Report\.pdf$/i);
     if (match) return match[1].replace(/_/g, ' ');
     return cleaned.replace('.pdf', '');
-}
+  }
 
   function renderFileTags() {
     const list = document.getElementById('file-list');
@@ -378,8 +333,8 @@
     renderFileTags();
     if (!loadedFiles.length) {
       document.getElementById('controls').style.display = 'none';
-      document.getElementById('results-area').classList.add('hidden');
-      document.getElementById('exam-tabs').innerHTML = '';
+      document.getElementById('exam-section').style.display = 'none';
+      document.getElementById('gcse-section').style.display = 'none';
     }
   }
 
@@ -387,23 +342,19 @@
     loadedFiles = [];
     renderFileTags();
     document.getElementById('controls').style.display = 'none';
-    document.getElementById('results-area').classList.add('hidden');
-    document.getElementById('exam-tabs').innerHTML = '';
+    document.getElementById('exam-section').style.display = 'none';
+    document.getElementById('gcse-section').style.display = 'none';
     setStatus('');
   }
 
-  function setStatus(msg) {
-    document.getElementById('status').textContent = msg;
-  }
+  function setStatus(msg) { document.getElementById('status').textContent = msg; }
 
-  // --- Parse PDF metadata ---
   async function parsePDF(file) {
     if (!pdfJsLoaded) throw new Error('PDF.js not loaded yet');
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     const meta = await pdf.getMetadata();
     const subject = meta?.info?.Subject || '';
-    // Author field stores the original unmodified student name from the game
     const author = meta?.info?.Author || '';
     return { examData: parseCSV(subject), studentName: author || null };
   }
@@ -412,41 +363,51 @@
     if (!csvString) return null;
     const lines = csvString.split('\n').filter(l => l.trim());
     const examData = {};
-    let currentExam = null;
 
     for (const line of lines) {
       const cols = parseCSVLine(line);
       if (!cols.length) continue;
-
       const first = cols[0].trim();
 
-      // Exam summary row: "Exam 1,,, 8/10,..."
+      // GCSE exam summary row: "GCSE Exam 1,,, 7/10"
+      const gcseExamMatch = first.match(/^GCSE\s+Exam\s+(\d+)$/i);
+      if (gcseExamMatch && cols[1]?.trim() === '' && cols[2]?.trim() === '') {
+        const key = `gcse_${gcseExamMatch[1]}`;
+        const scoreStr = cols[3]?.trim() || '';
+        const scoreMatch = scoreStr.match(/(\d+)\/(\d+)/);
+        if (!examData[key]) examData[key] = { score: null, total: null, questions: [], isGcse: true };
+        if (scoreMatch) { examData[key].score = parseInt(scoreMatch[1]); examData[key].total = parseInt(scoreMatch[2]); }
+        continue;
+      }
+
+      // GCSE question row: "GCSE Exam 1 Q3","prompt",CORRECT/WRONG,"answer"
+      const gcseQMatch = first.match(/^GCSE\s+Exam\s+(\d+)\s+Q(\d+)$/i);
+      if (gcseQMatch) {
+        const key = `gcse_${gcseQMatch[1]}`;
+        const qNum = parseInt(gcseQMatch[2]);
+        if (!examData[key]) examData[key] = { score: null, total: null, questions: [], isGcse: true };
+        examData[key].questions.push({ q: qNum, prompt: cols[1]?.trim() || `Q${qNum}`, correct: cols[2]?.trim() === 'CORRECT', user: cols[3]?.trim() || '' });
+        continue;
+      }
+
+      // Regular exam summary row: "Exam 1,,, 8/10"
       const examMatch = first.match(/^Exam\s+(\d+)$/);
       if (examMatch && cols[1]?.trim() === '' && cols[2]?.trim() === '') {
         const id = parseInt(examMatch[1]);
         const scoreStr = cols[3]?.trim() || '';
         const scoreMatch = scoreStr.match(/(\d+)\/(\d+)/);
-        currentExam = id;
-        if (!examData[id]) examData[id] = { score: null, total: null, questions: [] };
-        if (scoreMatch) {
-          examData[id].score = parseInt(scoreMatch[1]);
-          examData[id].total = parseInt(scoreMatch[2]);
-        }
+        if (!examData[id]) examData[id] = { score: null, total: null, questions: [], isGcse: false };
+        if (scoreMatch) { examData[id].score = parseInt(scoreMatch[1]); examData[id].total = parseInt(scoreMatch[2]); }
         continue;
       }
 
-      // Question row: "Exam 1 Q3","prompt",CORRECT/WRONG,"answer"
+      // Regular question row: "Exam 1 Q3","prompt",CORRECT/WRONG,"answer"
       const qMatch = first.match(/^Exam\s+(\d+)\s+Q(\d+)$/);
       if (qMatch) {
         const id = parseInt(qMatch[1]);
         const qNum = parseInt(qMatch[2]);
-        if (!examData[id]) examData[id] = { score: null, total: null, questions: [] };
-        examData[id].questions.push({
-          q: qNum,
-          prompt: cols[1]?.trim() || `Q${qNum}`,
-          correct: cols[2]?.trim() === 'CORRECT',
-          user: cols[3]?.trim() || ''
-        });
+        if (!examData[id]) examData[id] = { score: null, total: null, questions: [], isGcse: false };
+        examData[id].questions.push({ q: qNum, prompt: cols[1]?.trim() || `Q${qNum}`, correct: cols[2]?.trim() === 'CORRECT', user: cols[3]?.trim() || '' });
       }
     }
 
@@ -468,7 +429,6 @@
     return result;
   }
 
-  // --- Analyse ---
   async function analyseAll() {
     setStatus('Reading PDFs...');
     let loaded = 0;
@@ -477,7 +437,6 @@
       try {
         const result = await parsePDF(entry.file);
         entry.examData = result.examData;
-        // Override the filename-derived name with the real name from PDF Author metadata
         if (result.studentName) entry.studentName = result.studentName;
         entry.status = entry.examData ? 'loaded' : 'error';
         loaded++;
@@ -490,50 +449,73 @@
     renderFileTags();
     setStatus(`Loaded ${loaded} of ${loadedFiles.length} files.`);
 
+    // Separate regular and GCSE exam IDs
     const examIds = new Set();
+    const gcseIds = new Set();
+
     loadedFiles.forEach(f => {
-      if (f.examData) Object.keys(f.examData).forEach(id => examIds.add(parseInt(id)));
+      if (!f.examData) return;
+      Object.keys(f.examData).forEach(id => {
+        if (f.examData[id].isGcse) gcseIds.add(id);
+        else examIds.add(id);
+      });
     });
 
-    if (!examIds.size) {
+    if (!examIds.size && !gcseIds.size) {
       setStatus('No exam data found in PDFs. Make sure reports were generated after taking exams.');
       return;
     }
 
-    renderTabs([...examIds].sort((a, b) => a - b));
-  }
+    if (examIds.size) {
+      document.getElementById('exam-section').style.display = 'block';
+      renderTabs([...examIds].sort((a, b) => Number(a) - Number(b)), false);
+    }
 
-  function renderTabs(examIds) {
-    const tabsEl = document.getElementById('exam-tabs');
-    tabsEl.innerHTML = '';
-    examIds.forEach((id, i) => {
-      const tab = document.createElement('button');
-      tab.className = `exam-tab${i === 0 ? ' active' : ''}`;
-      tab.textContent = `EXAM ${id}`;
-      tab.onclick = () => {
-        document.querySelectorAll('.exam-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        renderTable(id);
-      };
-      tabsEl.appendChild(tab);
-    });
-    renderTable(examIds[0]);
+    if (gcseIds.size) {
+      document.getElementById('gcse-section').style.display = 'block';
+      renderTabs([...gcseIds].sort((a, b) => {
+        const na = parseInt(a.replace('gcse_', ''));
+        const nb = parseInt(b.replace('gcse_', ''));
+        return na - nb;
+      }), true);
+    }
+
     document.getElementById('export-btn').style.display = 'inline-block';
   }
 
-  function renderTable(examId) {
-    currentExamId = examId;
-    const resultsArea = document.getElementById('results-area');
+  function renderTabs(ids, isGcse) {
+    const tabsEl = document.getElementById(isGcse ? 'gcse-tabs' : 'exam-tabs');
+    tabsEl.innerHTML = '';
+    ids.forEach((id, i) => {
+      const tab = document.createElement('button');
+      tab.className = isGcse ? `gcse-tab${i === 0 ? ' active' : ''}` : `exam-tab${i === 0 ? ' active' : ''}`;
+      tab.textContent = isGcse ? `GCSE ${id.replace('gcse_', '')}` : `EXAM ${id}`;
+      tab.onclick = () => {
+        const allTabs = tabsEl.querySelectorAll(isGcse ? '.gcse-tab' : '.exam-tab');
+        allTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        renderTable(id, isGcse);
+      };
+      tabsEl.appendChild(tab);
+    });
+    renderTable(ids[0], isGcse);
+  }
+
+  function renderTable(examId, isGcse) {
+    const areaId = isGcse ? 'gcse-results-area' : 'results-area';
+    const resultsArea = document.getElementById(areaId);
     resultsArea.classList.remove('hidden');
+
+    if (isGcse) currentGcseId = examId;
+    else currentExamId = examId;
 
     const students = loadedFiles.filter(f => f.examData && f.examData[examId]);
 
     if (!students.length) {
-      resultsArea.innerHTML = `<div id="empty-state"><div class="big">📭</div><div>No students have taken Exam ${examId} yet.</div></div>`;
+      resultsArea.innerHTML = `<div id="empty-state"><div class="big">📭</div><div>No students have taken this exam yet.</div></div>`;
       return;
     }
 
-    // Gather all question prompts ordered by q number
     const qMap = {};
     students.forEach(s => {
       (s.examData[examId].questions || []).forEach(q => {
@@ -542,18 +524,15 @@
     });
     const qNums = Object.keys(qMap).map(Number).sort((a, b) => a - b);
 
-    // Build table
     let html = '<table>';
 
-    // Header row
-    html += '<tr><th class="question-label">QUESTION</th>';
-    students.forEach(s => {
-      html += `<th class="student-name">${s.studentName}</th>`;
-    });
+    // Header
+    html += `<tr><th class="question-label ${isGcse ? 'gcse-header' : ''}">QUESTION</th>`;
+    students.forEach(s => { html += `<th class="student-name">${s.studentName}</th>`; });
     html += '</tr>';
 
     // Score row
-    html += '<tr class="score-row"><td class="question-label">SCORE</td>';
+    html += `<tr class="score-row${isGcse ? ' gcse' : ''}"><td class="question-label">SCORE</td>`;
     students.forEach(s => {
       const ex = s.examData[examId];
       const score = ex.score !== null ? ex.score : '?';
@@ -569,38 +548,31 @@
       html += `<tr><td class="question-label" title="${prompt}">Q${qNum}: ${shortPrompt}</td>`;
       students.forEach(s => {
         const q = (s.examData[examId].questions || []).find(q => q.q === qNum);
-        if (!q) {
-          html += `<td class="no-data">—</td>`;
-        } else if (q.correct) {
-          html += `<td class="correct">✓</td>`;
-        } else {
-          html += `<td class="wrong">✗</td>`;
-        }
+        if (!q) html += `<td class="no-data">—</td>`;
+        else if (q.correct) html += `<td class="correct">✓</td>`;
+        else html += `<td class="wrong">✗</td>`;
       });
       html += '</tr>';
     });
 
     html += '</table>';
 
-    // Summary stats
+    // Summary
+    const total = students[0]?.examData[examId]?.total || 10;
     const avgScore = students.reduce((sum, s) => {
       const ex = s.examData[examId];
       return sum + (ex.score !== null ? ex.score : 0);
     }, 0) / students.length;
 
-    const total = students[0]?.examData[examId]?.total || 10;
-
-    // Per-question pass rates
     const qStats = qNums.map(qNum => {
       const answers = students.map(s => (s.examData[examId].questions || []).find(q => q.q === qNum));
       const attempted = answers.filter(a => a).length;
       const correct = answers.filter(a => a && a.correct).length;
       return { qNum, prompt: qMap[qNum], pct: attempted ? Math.round((correct / attempted) * 100) : null };
     });
-
     const hardest = [...qStats].filter(q => q.pct !== null).sort((a, b) => a.pct - b.pct).slice(0, 3);
 
-    html += `<div id="summary">
+    html += `<div id="${isGcse ? 'gcse-summary' : 'summary'}">
       <div class="summary-card"><div class="label">STUDENTS</div><div class="value">${students.length}</div></div>
       <div class="summary-card"><div class="label">CLASS AVG</div><div class="value">${avgScore.toFixed(1)}/${total}</div></div>
       <div class="summary-card"><div class="label">PASS RATE</div><div class="value">${Math.round((avgScore / total) * 100)}%</div></div>
@@ -623,586 +595,147 @@
     return d.textContent || d.innerText || '';
   }
 
-  async function exportToPDF() {
-      const { PDFDocument } = PDFLib;
-  
-      const examId = currentExamId;
-      const students = loadedFiles.filter(f => f.examData && f.examData[examId]);
-      if (!students.length) return;
-  
-      const qMap = {};
-      students.forEach(s => {
-          (s.examData[examId].questions || []).forEach(q => {
-              if (!qMap[q.q]) qMap[q.q] = q.prompt;
-          });
-      });
-      const qNums = Object.keys(qMap).map(Number).sort((a, b) => a - b);
-  
-      // --- Layout ---
-      const PADDING = 40;
-      const ROW_H = 36;
-      const COL_Q_WIDTH = 320;
-      const COL_STUDENT_WIDTH = 110;
-      const HEADER_H = 100;
-      const TABLE_TOP = HEADER_H + 20;
-      const TITLE_ROW_H = 44;
-      const SCORE_ROW_H = 36;
-      const SUMMARY_H = 100;
-      const HARDEST_H = 30 + Math.min(3, qNums.length) * 28;
-  
-      const tableWidth = COL_Q_WIDTH + students.length * COL_STUDENT_WIDTH;
-      const CANVAS_WIDTH = Math.max(tableWidth + PADDING * 2, 800);
-      const tableRows = 1 + 1 + qNums.length; // header + score + questions
-      const CANVAS_HEIGHT = TABLE_TOP + TITLE_ROW_H + SCORE_ROW_H + qNums.length * ROW_H + SUMMARY_H + HARDEST_H + PADDING * 2;
-  
-      const canvas = document.createElement('canvas');
-      canvas.width = CANVAS_WIDTH;
-      canvas.height = CANVAS_HEIGHT;
-      const ctx = canvas.getContext('2d');
-  
-      // Background
-      ctx.fillStyle = '#1e1e1e';
-      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  
-      // Border
-      ctx.strokeStyle = '#569cd6';
-      ctx.lineWidth = 6;
-      ctx.strokeRect(3, 3, CANVAS_WIDTH - 6, CANVAS_HEIGHT - 6);
-  
-      // --- Header ---
-      ctx.fillStyle = '#569cd6';
-      ctx.font = 'bold 28px Consolas, monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(`PYTHON DEFENSE — CLASS REPORT`, CANVAS_WIDTH / 2, 44);
-  
-      ctx.fillStyle = '#dcdcaa';
-      ctx.font = '18px Consolas, monospace';
-      ctx.fillText(`EXAM ${examId}  •  ${students.length} Students`, CANVAS_WIDTH / 2, 74);
-  
-      // --- Table column headers ---
-      let y = TABLE_TOP;
-      ctx.fillStyle = '#2d2d2d';
-      ctx.fillRect(PADDING, y, CANVAS_WIDTH - PADDING * 2, TITLE_ROW_H);
-  
-      ctx.fillStyle = '#569cd6';
-      ctx.font = 'bold 14px Consolas, monospace';
-      ctx.textAlign = 'left';
-      ctx.fillText('QUESTION', PADDING + 10, y + 26);
-  
-      students.forEach((s, i) => {
-          const x = PADDING + COL_Q_WIDTH + i * COL_STUDENT_WIDTH;
-          ctx.fillStyle = '#dcdcaa';
-          ctx.font = 'bold 12px Consolas, monospace';
-          ctx.textAlign = 'center';
-          const name = s.studentName.length > 10 ? s.studentName.slice(0, 9) + '…' : s.studentName;
-          ctx.fillText(name, x + COL_STUDENT_WIDTH / 2, y + 26);
-      });
-  
-      // --- Score row ---
-      y += TITLE_ROW_H;
-      ctx.fillStyle = '#252526';
-      ctx.fillRect(PADDING, y, CANVAS_WIDTH - PADDING * 2, SCORE_ROW_H);
-      ctx.strokeStyle = '#569cd6';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(PADDING, y);
-      ctx.lineTo(CANVAS_WIDTH - PADDING, y);
-      ctx.stroke();
-  
-      ctx.fillStyle = '#dcdcaa';
-      ctx.font = 'bold 13px Consolas, monospace';
-      ctx.textAlign = 'left';
-      ctx.fillText('SCORE', PADDING + 10, y + 23);
-  
-      students.forEach((s, i) => {
-          const ex = s.examData[examId];
-          const score = ex.score !== null ? ex.score : '?';
-          const total = ex.total !== null ? ex.total : '?';
-          const x = PADDING + COL_Q_WIDTH + i * COL_STUDENT_WIDTH;
-          ctx.fillStyle = '#dcdcaa';
-          ctx.font = 'bold 13px Consolas, monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText(`${score}/${total}`, x + COL_STUDENT_WIDTH / 2, y + 23);
-      });
-  
-      // --- Question rows ---
-      qNums.forEach((qNum, qi) => {
-          y += (qi === 0 ? SCORE_ROW_H : ROW_H);
-          const rowY = y;
-  
-          // Alternating background
-          ctx.fillStyle = qi % 2 === 0 ? '#252526' : '#1e1e1e';
-          ctx.fillRect(PADDING, rowY, CANVAS_WIDTH - PADDING * 2, ROW_H);
-  
-          // Row border
-          ctx.strokeStyle = '#333';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(PADDING, rowY + ROW_H);
-          ctx.lineTo(CANVAS_WIDTH - PADDING, rowY + ROW_H);
-          ctx.stroke();
-  
-          // Question label
-          const prompt = stripHtml(qMap[qNum]);
-          const short = prompt.length > 38 ? prompt.slice(0, 35) + '...' : prompt;
-          ctx.fillStyle = '#888';
-          ctx.font = '12px Consolas, monospace';
-          ctx.textAlign = 'left';
-          ctx.fillText(`Q${qNum}: ${short}`, PADDING + 10, rowY + 22);
-  
-          // Student cells
-          students.forEach((s, i) => {
-              const q = (s.examData[examId].questions || []).find(q => q.q === qNum);
-              const x = PADDING + COL_Q_WIDTH + i * COL_STUDENT_WIDTH;
-              if (!q) {
-                  ctx.fillStyle = '#333';
-                  ctx.fillRect(x, rowY, COL_STUDENT_WIDTH, ROW_H);
-                  ctx.fillStyle = '#555';
-                  ctx.font = 'bold 14px Consolas, monospace';
-                  ctx.textAlign = 'center';
-                  ctx.fillText('—', x + COL_STUDENT_WIDTH / 2, rowY + 22);
-              } else if (q.correct) {
-                  ctx.fillStyle = '#1a3a1a';
-                  ctx.fillRect(x, rowY, COL_STUDENT_WIDTH, ROW_H);
-                  ctx.fillStyle = '#6a9955';
-                  ctx.font = 'bold 16px Consolas, monospace';
-                  ctx.textAlign = 'center';
-                  ctx.fillText('✓', x + COL_STUDENT_WIDTH / 2, rowY + 22);
-              } else {
-                  ctx.fillStyle = '#3a1a1a';
-                  ctx.fillRect(x, rowY, COL_STUDENT_WIDTH, ROW_H);
-                  ctx.fillStyle = '#f44747';
-                  ctx.font = 'bold 16px Consolas, monospace';
-                  ctx.textAlign = 'center';
-                  ctx.fillText('✗', x + COL_STUDENT_WIDTH / 2, rowY + 22);
-              }
-  
-              // Cell border
-              ctx.strokeStyle = '#333';
-              ctx.lineWidth = 1;
-              ctx.strokeRect(x, rowY, COL_STUDENT_WIDTH, ROW_H);
-          });
-      });
-  
-      // --- Summary cards ---
-      const summaryY = y + ROW_H + 30;
-      const avgScore = students.reduce((sum, s) => {
-          const ex = s.examData[examId];
-          return sum + (ex.score !== null ? ex.score : 0);
-      }, 0) / students.length;
-      const total = students[0]?.examData[examId]?.total || 10;
-      const passRate = Math.round((avgScore / total) * 100);
-  
-      const cards = [
-          { label: 'STUDENTS', value: String(students.length) },
-          { label: 'CLASS AVG', value: `${avgScore.toFixed(1)}/${total}` },
-          { label: 'PASS RATE', value: `${passRate}%` }
-      ];
-  
-      cards.forEach((card, i) => {
-          const cx = PADDING + i * 200;
-          ctx.fillStyle = '#2d2d2d';
-          ctx.strokeStyle = '#444';
-          ctx.lineWidth = 1;
-          ctx.fillRect(cx, summaryY, 180, 60);
-          ctx.strokeRect(cx, summaryY, 180, 60);
-          ctx.fillStyle = '#888';
-          ctx.font = '11px Consolas, monospace';
-          ctx.textAlign = 'left';
-          ctx.fillText(card.label, cx + 12, summaryY + 18);
-          ctx.fillStyle = '#dcdcaa';
-          ctx.font = 'bold 22px Consolas, monospace';
-          ctx.fillText(card.value, cx + 12, summaryY + 48);
-      });
-  
-      // --- Hardest questions ---
-      const qStats = qNums.map(qNum => {
-          const answers = students.map(s => (s.examData[examId].questions || []).find(q => q.q === qNum));
-          const attempted = answers.filter(a => a).length;
-          const correct = answers.filter(a => a && a.correct).length;
-          return { qNum, prompt: qMap[qNum], pct: attempted ? Math.round((correct / attempted) * 100) : null };
-      });
-      const hardest = [...qStats].filter(q => q.pct !== null).sort((a, b) => a.pct - b.pct).slice(0, 3);
-  
-      if (hardest.length) {
-          const hardestY = summaryY + 80;
-          ctx.fillStyle = '#f44747';
-          ctx.font = 'bold 13px Consolas, monospace';
-          ctx.textAlign = 'left';
-          ctx.fillText('⚠ HARDEST QUESTIONS', PADDING, hardestY);
-  
-          hardest.forEach((q, i) => {
-              const hy = hardestY + 24 + i * 26;
-              const prompt = stripHtml(q.prompt).slice(0, 70);
-              ctx.fillStyle = '#f44747';
-              ctx.font = 'bold 12px Consolas, monospace';
-              ctx.fillText(`${q.pct}%`, PADDING, hy);
-              ctx.fillStyle = '#d4d4d4';
-              ctx.font = '12px Consolas, monospace';
-              ctx.fillText(`Q${q.qNum}: ${prompt}`, PADDING + 50, hy);
-          });
-      }
-  
-      // --- Export to PDF ---
-      const pdfDoc = await PDFDocument.create();
-      const pngDataUrl = canvas.toDataURL('image/png');
-      const pngBase64 = pngDataUrl.split(',')[1];
-      const pngBytes = Uint8Array.from(atob(pngBase64), c => c.charCodeAt(0));
-      const pngImage = await pdfDoc.embedPng(pngBytes);
-  
-      const page = pdfDoc.addPage([canvas.width, canvas.height]);
-      page.drawImage(pngImage, { x: 0, y: 0, width: canvas.width, height: canvas.height });
-  
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const link = document.createElement('a');
-      link.download = `PythonDefense_ClassReport_Exam${examId}.pdf`;
-      link.href = URL.createObjectURL(blob);
-      link.click();
-  }
   async function exportToODS() {
-      const examId = currentExamId;
-      const students = loadedFiles.filter(f => f.examData && f.examData[examId]);
-      if (!students.length) return;
-  
-      const qMap = {};
-      students.forEach(s => {
-          (s.examData[examId].questions || []).forEach(q => {
-              if (!qMap[q.q]) qMap[q.q] = q.prompt;
-          });
-      });
-      const qNums = Object.keys(qMap).map(Number).sort((a, b) => a - b);
-  
-      const avgScore = students.reduce((sum, s) => {
-          const ex = s.examData[examId];
-          return sum + (ex.score !== null ? ex.score : 0);
-      }, 0) / students.length;
-      const total = students[0]?.examData[examId]?.total || 10;
-      const passRate = Math.round((avgScore / total) * 100);
-  
-      const qStats = qNums.map(qNum => {
-          const answers = students.map(s => (s.examData[examId].questions || []).find(q => q.q === qNum));
-          const attempted = answers.filter(a => a).length;
-          const correct = answers.filter(a => a && a.correct).length;
-          return { qNum, prompt: qMap[qNum], pct: attempted ? Math.round((correct / attempted) * 100) : null };
-      });
-      const hardest = [...qStats].filter(q => q.pct !== null).sort((a, b) => a.pct - b.pct).slice(0, 3);
-  
-      // --- Build ODS XML ---
-      const escape = s => String(s)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-  
-      const cell = (value, styleName) =>
-          `<table:table-cell table:style-name="${styleName}" office:value-type="string" calcext:value-type="string"><text:p>${escape(value)}</text:p></table:table-cell>`;
-  
-      const emptyCell = (styleName = 'ce-default') =>
-          `<table:table-cell table:style-name="${styleName}"/>`;
-  
-      let rows = '';
-  
-      // Title row
-      rows += `<table:table-row table:style-name="ro-title">
-          ${cell(`PYTHON DEFENSE — CLASS REPORT — EXAM ${examId}`, 'ce-title')}
-          ${students.map(() => emptyCell('ce-title')).join('')}
-      </table:table-row>`;
-  
-      // Blank row
-      rows += `<table:table-row>${emptyCell()}</table:table-row>`;
-  
-      // Column header row
-      rows += `<table:table-row table:style-name="ro-header">
-          ${cell('QUESTION', 'ce-col-header')}
-          ${students.map(s => cell(s.studentName, 'ce-col-header')).join('')}
-      </table:table-row>`;
-  
-      // Score row
-      rows += `<table:table-row table:style-name="ro-normal">
-          ${cell('SCORE', 'ce-score-label')}
-          ${students.map(s => {
-              const ex = s.examData[examId];
-              const score = ex.score !== null ? ex.score : '?';
-              const tot = ex.total !== null ? ex.total : '?';
-              return cell(`${score}/${tot}`, 'ce-score');
-          }).join('')}
-      </table:table-row>`;
-  
-      // Question rows
-      qNums.forEach(qNum => {
-          const prompt = stripHtml(qMap[qNum]);
-          rows += `<table:table-row table:style-name="ro-normal">
-              ${cell(`Q${qNum}: ${prompt}`, 'ce-question')}
-              ${students.map(s => {
-                  const q = (s.examData[examId].questions || []).find(q => q.q === qNum);
-                  if (!q) return cell('—', 'ce-nodata');
-                  return q.correct ? cell('✓', 'ce-correct') : cell('✗', 'ce-wrong');
-              }).join('')}
-          </table:table-row>`;
-      });
-  
-      // Blank row
-      rows += `<table:table-row>${emptyCell()}</table:table-row>`;
-  
-      // Summary rows
-      rows += `<table:table-row table:style-name="ro-normal">
-          ${cell('STUDENTS', 'ce-summary-label')}
-          ${cell(String(students.length), 'ce-summary-value')}
-          ${emptyCell()}
-      </table:table-row>`;
-      rows += `<table:table-row table:style-name="ro-normal">
-          ${cell('CLASS AVG', 'ce-summary-label')}
-          ${cell(`${avgScore.toFixed(1)}/${total}`, 'ce-summary-value')}
-          ${emptyCell()}
-      </table:table-row>`;
-      rows += `<table:table-row table:style-name="ro-normal">
-          ${cell('PASS RATE', 'ce-summary-label')}
-          ${cell(`${passRate}%`, 'ce-summary-value')}
-          ${emptyCell()}
-      </table:table-row>`;
-  
-      // Blank row
-      rows += `<table:table-row>${emptyCell()}</table:table-row>`;
-  
-      // Hardest questions
-      if (hardest.length) {
-          rows += `<table:table-row table:style-name="ro-normal">
-              ${cell('⚠ HARDEST QUESTIONS', 'ce-hardest-header')}
-              ${emptyCell()}${emptyCell()}
-          </table:table-row>`;
-          hardest.forEach(q => {
-              rows += `<table:table-row table:style-name="ro-normal">
-                  ${cell(`Q${q.qNum}: ${stripHtml(q.prompt)}`, 'ce-hardest-q')}
-                  ${cell(`${q.pct}% correct`, 'ce-hardest-pct')}
-                  ${emptyCell()}
-              </table:table-row>`;
-          });
-      }
-  
-      const colDefs = `<table:table-column table:style-name="co-default" table:number-columns-repeated="50"/>`;
+    const examId = currentExamId;
+    if (!examId) return;
+    const students = loadedFiles.filter(f => f.examData && f.examData[examId]);
+    if (!students.length) return;
 
-const contentXml = `<?xml version="1.0" encoding="UTF-8"?>
-    <office:document-content
-        xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
-        xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
-        xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
-        xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
-        xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
-        xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"
-        office:version="1.2">
-    <office:automatic-styles>
-    
-        <style:style style:name="ta-main" style:family="table">
-            <style:table-properties fo:background-color="#1e1e1e"/>
-        </style:style>
-    
-        <style:style style:name="co-default" style:family="table-column">
-            <style:table-column-properties fo:background-color="#1e1e1e" style:column-width="3cm"/>
-        </style:style>
-    
-        <style:style style:name="ro-title" style:family="table-row"><style:table-row-properties style:row-height="1.2cm"/></style:style>
-        <style:style style:name="ro-header" style:family="table-row"><style:table-row-properties style:row-height="1cm"/></style:style>
-        <style:style style:name="ro-normal" style:family="table-row"><style:table-row-properties style:row-height="0.8cm"/></style:style>
-    
-        <style:style style:name="ce-default" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444"/>
-            <style:text-properties fo:color="#d4d4d4" fo:font-size="11pt" style:font-name="Consolas"/>
-        </style:style>
-    
-        <style:style style:name="ce-title" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #569cd6" style:vertical-align="middle"/>
-            <style:text-properties fo:color="#569cd6" fo:font-size="16pt" fo:font-weight="bold" style:font-name="Consolas"/>
-        </style:style>
-    
-        <style:style style:name="ce-col-header" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
-            <style:text-properties fo:color="#569cd6" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
-        </style:style>
-    
-        <style:style style:name="ce-score-label" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #569cd6" style:vertical-align="middle"/>
-            <style:text-properties fo:color="#dcdcaa" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
-        </style:style>
-    
-        <style:style style:name="ce-score" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #569cd6" style:vertical-align="middle" fo:text-align="center"/>
-            <style:text-properties fo:color="#dcdcaa" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
-        </style:style>
-    
-        <style:style style:name="ce-question" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#252526" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
-            <style:text-properties fo:color="#888888" fo:font-size="10pt" style:font-name="Consolas"/>
-        </style:style>
-    
-        <style:style style:name="ce-correct" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#1a3a1a" fo:border="0.05cm solid #4a9955" style:vertical-align="middle" fo:text-align="center"/>
-            <style:text-properties fo:color="#6a9955" fo:font-size="13pt" fo:font-weight="bold" style:font-name="Consolas"/>
-        </style:style>
-    
-        <style:style style:name="ce-wrong" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#3a1a1a" fo:border="0.05cm solid #f44747" style:vertical-align="middle" fo:text-align="center"/>
-            <style:text-properties fo:color="#f44747" fo:font-size="13pt" fo:font-weight="bold" style:font-name="Consolas"/>
-        </style:style>
-    
-        <style:style style:name="ce-nodata" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #333333" style:vertical-align="middle" fo:text-align="center"/>
-            <style:text-properties fo:color="#444444" fo:font-size="11pt" style:font-name="Consolas"/>
-        </style:style>
-    
-        <style:style style:name="ce-summary-label" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
-            <style:text-properties fo:color="#888888" fo:font-size="10pt" style:font-name="Consolas"/>
-        </style:style>
-    
-        <style:style style:name="ce-summary-value" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
-            <style:text-properties fo:color="#dcdcaa" fo:font-size="14pt" fo:font-weight="bold" style:font-name="Consolas"/>
-        </style:style>
-    
-        <style:style style:name="ce-hardest-header" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #f44747" style:vertical-align="middle"/>
-            <style:text-properties fo:color="#f44747" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/>
-        </style:style>
-    
-        <style:style style:name="ce-hardest-q" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
-            <style:text-properties fo:color="#d4d4d4" fo:font-size="10pt" style:font-name="Consolas"/>
-        </style:style>
-    
-        <style:style style:name="ce-hardest-pct" style:family="table-cell">
-            <style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444" style:vertical-align="middle"/>
-            <style:text-properties fo:color="#f44747" fo:font-size="10pt" fo:font-weight="bold" style:font-name="Consolas"/>
-        </style:style>
-    
-    </office:automatic-styles>
-    <office:body>
-    <office:spreadsheet>
-    <table:table table:name="Exam ${examId}" table:style-name="ta-main">
-    ${colDefs}
-    ${rows}
-    </table:table>
-    </office:spreadsheet>
-    </office:body>
-    </office:document-content>`;
-  
-      const mimetypeContent = 'application/vnd.oasis.opendocument.spreadsheet';
-  
-      const manifestXml = `<?xml version="1.0" encoding="UTF-8"?>
-  <manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.2">
-      <manifest:file-entry manifest:full-path="/" manifest:media-type="application/vnd.oasis.opendocument.spreadsheet"/>
-      <manifest:file-entry manifest:full-path="content.xml" manifest:media-type="text/xml"/>
-  </manifest:manifest>`;
-  
-      // --- Zip it up ---
-      // We build the ODS zip manually using a minimal zip implementation
-      function strToBytes(str) {
-          return new TextEncoder().encode(str);
+    const qMap = {};
+    students.forEach(s => {
+      (s.examData[examId].questions || []).forEach(q => {
+        if (!qMap[q.q]) qMap[q.q] = q.prompt;
+      });
+    });
+    const qNums = Object.keys(qMap).map(Number).sort((a, b) => a - b);
+
+    const total = students[0]?.examData[examId]?.total || 10;
+    const avgScore = students.reduce((sum, s) => {
+      const ex = s.examData[examId];
+      return sum + (ex.score !== null ? ex.score : 0);
+    }, 0) / students.length;
+    const passRate = Math.round((avgScore / total) * 100);
+
+    const qStats = qNums.map(qNum => {
+      const answers = students.map(s => (s.examData[examId].questions || []).find(q => q.q === qNum));
+      const attempted = answers.filter(a => a).length;
+      const correct = answers.filter(a => a && a.correct).length;
+      return { qNum, prompt: qMap[qNum], pct: attempted ? Math.round((correct / attempted) * 100) : null };
+    });
+    const hardest = [...qStats].filter(q => q.pct !== null).sort((a, b) => a.pct - b.pct).slice(0, 3);
+
+    const escape = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const cell = (value, styleName) => `<table:table-cell table:style-name="${styleName}" office:value-type="string" calcext:value-type="string"><text:p>${escape(value)}</text:p></table:table-cell>`;
+    const emptyCell = (styleName = 'ce-default') => `<table:table-cell table:style-name="${styleName}"/>`;
+
+    let rows = '';
+    rows += `<table:table-row table:style-name="ro-title">${cell(`PYTHON DEFENSE — CLASS REPORT — EXAM ${examId}`, 'ce-title')}${students.map(() => emptyCell('ce-title')).join('')}</table:table-row>`;
+    rows += `<table:table-row>${emptyCell()}</table:table-row>`;
+    rows += `<table:table-row table:style-name="ro-header">${cell('QUESTION', 'ce-col-header')}${students.map(s => cell(s.studentName, 'ce-col-header')).join('')}</table:table-row>`;
+    rows += `<table:table-row table:style-name="ro-normal">${cell('SCORE', 'ce-score-label')}${students.map(s => { const ex = s.examData[examId]; return cell(`${ex.score ?? '?'}/${ex.total ?? '?'}`, 'ce-score'); }).join('')}</table:table-row>`;
+
+    qNums.forEach(qNum => {
+      const prompt = stripHtml(qMap[qNum]);
+      rows += `<table:table-row table:style-name="ro-normal">${cell(`Q${qNum}: ${prompt}`, 'ce-question')}${students.map(s => { const q = (s.examData[examId].questions || []).find(q => q.q === qNum); if (!q) return cell('—', 'ce-nodata'); return q.correct ? cell('✓', 'ce-correct') : cell('✗', 'ce-wrong'); }).join('')}</table:table-row>`;
+    });
+
+    rows += `<table:table-row>${emptyCell()}</table:table-row>`;
+    rows += `<table:table-row table:style-name="ro-normal">${cell('STUDENTS', 'ce-summary-label')}${cell(String(students.length), 'ce-summary-value')}${emptyCell()}</table:table-row>`;
+    rows += `<table:table-row table:style-name="ro-normal">${cell('CLASS AVG', 'ce-summary-label')}${cell(`${avgScore.toFixed(1)}/${total}`, 'ce-summary-value')}${emptyCell()}</table:table-row>`;
+    rows += `<table:table-row table:style-name="ro-normal">${cell('PASS RATE', 'ce-summary-label')}${cell(`${passRate}%`, 'ce-summary-value')}${emptyCell()}</table:table-row>`;
+    rows += `<table:table-row>${emptyCell()}</table:table-row>`;
+
+    if (hardest.length) {
+      rows += `<table:table-row table:style-name="ro-normal">${cell('⚠ HARDEST QUESTIONS', 'ce-hardest-header')}${emptyCell()}${emptyCell()}</table:table-row>`;
+      hardest.forEach(q => {
+        rows += `<table:table-row table:style-name="ro-normal">${cell(`Q${q.qNum}: ${stripHtml(q.prompt)}`, 'ce-hardest-q')}${cell(`${q.pct}% correct`, 'ce-hardest-pct')}${emptyCell()}</table:table-row>`;
+      });
+    }
+
+    const colDefs = `<table:table-column table:style-name="co-default" table:number-columns-repeated="50"/>`;
+
+    const contentXml = `<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content
+    xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+    xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
+    xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+    xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+    xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+    xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"
+    office:version="1.2">
+<office:automatic-styles>
+    <style:style style:name="ta-main" style:family="table"><style:table-properties fo:background-color="#1e1e1e"/></style:style>
+    <style:style style:name="co-default" style:family="table-column"><style:table-column-properties fo:background-color="#1e1e1e" style:column-width="3cm"/></style:style>
+    <style:style style:name="ro-title" style:family="table-row"><style:table-row-properties style:row-height="1.2cm"/></style:style>
+    <style:style style:name="ro-header" style:family="table-row"><style:table-row-properties style:row-height="1cm"/></style:style>
+    <style:style style:name="ro-normal" style:family="table-row"><style:table-row-properties style:row-height="0.8cm"/></style:style>
+    <style:style style:name="ce-default" style:family="table-cell"><style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #1e1e1e"/><style:text-properties fo:color="#d4d4d4" fo:font-size="11pt" style:font-name="Consolas"/></style:style>
+    <style:style style:name="ce-title" style:family="table-cell"><style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #569cd6" style:vertical-align="middle"/><style:text-properties fo:color="#569cd6" fo:font-size="16pt" fo:font-weight="bold" style:font-name="Consolas"/></style:style>
+    <style:style style:name="ce-col-header" style:family="table-cell"><style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/><style:text-properties fo:color="#569cd6" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/></style:style>
+    <style:style style:name="ce-score-label" style:family="table-cell"><style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #569cd6" style:vertical-align="middle"/><style:text-properties fo:color="#dcdcaa" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/></style:style>
+    <style:style style:name="ce-score" style:family="table-cell"><style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #569cd6" style:vertical-align="middle" fo:text-align="center"/><style:text-properties fo:color="#dcdcaa" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/></style:style>
+    <style:style style:name="ce-question" style:family="table-cell"><style:table-cell-properties fo:background-color="#252526" fo:border="0.05cm solid #444444" style:vertical-align="middle"/><style:text-properties fo:color="#888888" fo:font-size="10pt" style:font-name="Consolas"/></style:style>
+    <style:style style:name="ce-correct" style:family="table-cell"><style:table-cell-properties fo:background-color="#1a3a1a" fo:border="0.05cm solid #4a9955" style:vertical-align="middle" fo:text-align="center"/><style:text-properties fo:color="#6a9955" fo:font-size="13pt" fo:font-weight="bold" style:font-name="Consolas"/></style:style>
+    <style:style style:name="ce-wrong" style:family="table-cell"><style:table-cell-properties fo:background-color="#3a1a1a" fo:border="0.05cm solid #f44747" style:vertical-align="middle" fo:text-align="center"/><style:text-properties fo:color="#f44747" fo:font-size="13pt" fo:font-weight="bold" style:font-name="Consolas"/></style:style>
+    <style:style style:name="ce-nodata" style:family="table-cell"><style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #333333" style:vertical-align="middle" fo:text-align="center"/><style:text-properties fo:color="#444444" fo:font-size="11pt" style:font-name="Consolas"/></style:style>
+    <style:style style:name="ce-summary-label" style:family="table-cell"><style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/><style:text-properties fo:color="#888888" fo:font-size="10pt" style:font-name="Consolas"/></style:style>
+    <style:style style:name="ce-summary-value" style:family="table-cell"><style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #444444" style:vertical-align="middle"/><style:text-properties fo:color="#dcdcaa" fo:font-size="14pt" fo:font-weight="bold" style:font-name="Consolas"/></style:style>
+    <style:style style:name="ce-hardest-header" style:family="table-cell"><style:table-cell-properties fo:background-color="#2d2d2d" fo:border="0.05cm solid #f44747" style:vertical-align="middle"/><style:text-properties fo:color="#f44747" fo:font-size="11pt" fo:font-weight="bold" style:font-name="Consolas"/></style:style>
+    <style:style style:name="ce-hardest-q" style:family="table-cell"><style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444" style:vertical-align="middle"/><style:text-properties fo:color="#d4d4d4" fo:font-size="10pt" style:font-name="Consolas"/></style:style>
+    <style:style style:name="ce-hardest-pct" style:family="table-cell"><style:table-cell-properties fo:background-color="#1e1e1e" fo:border="0.05cm solid #444444" style:vertical-align="middle"/><style:text-properties fo:color="#f44747" fo:font-size="10pt" fo:font-weight="bold" style:font-name="Consolas"/></style:style>
+</office:automatic-styles>
+<office:body>
+<office:spreadsheet>
+<table:table table:name="Exam ${examId}" table:style-name="ta-main">
+${colDefs}
+${rows}
+</table:table>
+</office:spreadsheet>
+</office:body>
+</office:document-content>`;
+
+    const mimetypeContent = 'application/vnd.oasis.opendocument.spreadsheet';
+    const manifestXml = `<?xml version="1.0" encoding="UTF-8"?><manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.2"><manifest:file-entry manifest:full-path="/" manifest:media-type="application/vnd.oasis.opendocument.spreadsheet"/><manifest:file-entry manifest:full-path="content.xml" manifest:media-type="text/xml"/></manifest:manifest>`;
+
+    function strToBytes(str) { return new TextEncoder().encode(str); }
+
+    function makeZip(files) {
+      const crc32Table = (() => { const t = new Uint32Array(256); for (let i = 0; i < 256; i++) { let c = i; for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); t[i] = c; } return t; })();
+      function crc32(data) { let crc = 0xFFFFFFFF; for (let i = 0; i < data.length; i++) crc = crc32Table[(crc ^ data[i]) & 0xFF] ^ (crc >>> 8); return (crc ^ 0xFFFFFFFF) >>> 0; }
+      function u16(n) { return [n & 0xFF, (n >> 8) & 0xFF]; }
+      function u32(n) { return [n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, (n >> 24) & 0xFF]; }
+      const localHeaders = [], centralHeaders = [];
+      let offset = 0;
+      for (const file of files) {
+        const nameBytes = new TextEncoder().encode(file.name);
+        const crc = crc32(file.data), size = file.data.length;
+        const local = [0x50,0x4B,0x03,0x04,20,0,0,0,0,0,0,0,0,0,...u32(crc),...u32(size),...u32(size),...u16(nameBytes.length),0,0,...nameBytes];
+        localHeaders.push({ local, data: file.data, offset, nameBytes, crc, size });
+        centralHeaders.push([0x50,0x4B,0x01,0x02,20,0,20,0,0,0,0,0,0,0,0,0,...u32(crc),...u32(size),...u32(size),...u16(nameBytes.length),0,0,0,0,0,0,0,0,0,0,0,0,...u32(offset),...nameBytes]);
+        offset += local.length + size;
       }
-  
-      function makeZip(files) {
-          // files: [{name, data: Uint8Array}]
-          const crc32Table = (() => {
-              const t = new Uint32Array(256);
-              for (let i = 0; i < 256; i++) {
-                  let c = i;
-                  for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-                  t[i] = c;
-              }
-              return t;
-          })();
-  
-          function crc32(data) {
-              let crc = 0xFFFFFFFF;
-              for (let i = 0; i < data.length; i++) crc = crc32Table[(crc ^ data[i]) & 0xFF] ^ (crc >>> 8);
-              return (crc ^ 0xFFFFFFFF) >>> 0;
-          }
-  
-          function u16(n) { return [n & 0xFF, (n >> 8) & 0xFF]; }
-          function u32(n) { return [n & 0xFF, (n >> 8) & 0xFF, (n >> 16) & 0xFF, (n >> 24) & 0xFF]; }
-  
-          const localHeaders = [];
-          const centralHeaders = [];
-          let offset = 0;
-  
-          for (const file of files) {
-              const nameBytes = new TextEncoder().encode(file.name);
-              const crc = crc32(file.data);
-              const size = file.data.length;
-  
-              const local = [
-                  0x50, 0x4B, 0x03, 0x04, // signature
-                  20, 0,                   // version needed
-                  0, 0,                    // flags
-                  0, 0,                    // compression (stored)
-                  0, 0, 0, 0,              // mod time/date
-                  ...u32(crc),
-                  ...u32(size),
-                  ...u32(size),
-                  ...u16(nameBytes.length),
-                  0, 0,
-                  ...nameBytes
-              ];
-  
-              localHeaders.push({ local, data: file.data, offset, nameBytes, crc, size });
-  
-              const central = [
-                  0x50, 0x4B, 0x01, 0x02,
-                  20, 0, 20, 0,
-                  0, 0, 0, 0,
-                  0, 0, 0, 0,
-                  ...u32(crc),
-                  ...u32(size),
-                  ...u32(size),
-                  ...u16(nameBytes.length),
-                  0, 0, 0, 0, 0, 0, 0, 0,
-                  0, 0, 0, 0,
-                  ...u32(offset),
-                  ...nameBytes
-              ];
-              centralHeaders.push(central);
-  
-              offset += local.length + size;
-          }
-  
-          const centralStart = offset;
-          const centralFlat = centralHeaders.flat();
-          const eocd = [
-              0x50, 0x4B, 0x05, 0x06,
-              0, 0, 0, 0,
-              ...u16(files.length),
-              ...u16(files.length),
-              ...u32(centralFlat.length),
-              ...u32(centralStart),
-              0, 0
-          ];
-  
-          const parts = [];
-          for (const h of localHeaders) {
-              parts.push(new Uint8Array(h.local));
-              parts.push(h.data);
-          }
-          parts.push(new Uint8Array(centralFlat));
-          parts.push(new Uint8Array(eocd));
-  
-          const total = parts.reduce((s, p) => s + p.length, 0);
-          const out = new Uint8Array(total);
-          let pos = 0;
-          for (const p of parts) { out.set(p, pos); pos += p.length; }
-          return out;
-      }
-  
-      const zipBytes = makeZip([
-          { name: 'mimetype', data: strToBytes(mimetypeContent) },
-          { name: 'META-INF/manifest.xml', data: strToBytes(manifestXml) },
-          { name: 'content.xml', data: strToBytes(contentXml) }
-      ]);
-  
-      const blob = new Blob([zipBytes], { type: 'application/vnd.oasis.opendocument.spreadsheet' });
-      const link = document.createElement('a');
-      link.download = `PythonDefense_ClassReport_Exam${examId}.ods`;
-      link.href = URL.createObjectURL(blob);
-      link.click();
+      const centralFlat = centralHeaders.flat();
+      const eocd = [0x50,0x4B,0x05,0x06,0,0,0,0,...u16(files.length),...u16(files.length),...u32(centralFlat.length),...u32(offset),0,0];
+      const parts = [];
+      for (const h of localHeaders) { parts.push(new Uint8Array(h.local)); parts.push(h.data); }
+      parts.push(new Uint8Array(centralFlat)); parts.push(new Uint8Array(eocd));
+      const total = parts.reduce((s, p) => s + p.length, 0);
+      const out = new Uint8Array(total); let pos = 0;
+      for (const p of parts) { out.set(p, pos); pos += p.length; }
+      return out;
+    }
+
+    const zipBytes = makeZip([
+      { name: 'mimetype', data: strToBytes(mimetypeContent) },
+      { name: 'META-INF/manifest.xml', data: strToBytes(manifestXml) },
+      { name: 'content.xml', data: strToBytes(contentXml) }
+    ]);
+
+    const blob = new Blob([zipBytes], { type: 'application/vnd.oasis.opendocument.spreadsheet' });
+    const link = document.createElement('a');
+    link.download = `PythonDefense_ClassReport_Exam${examId}.ods`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
   }
 </script>
 </body>
